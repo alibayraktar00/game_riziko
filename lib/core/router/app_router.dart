@@ -2,9 +2,13 @@ import 'package:go_router/go_router.dart';
 import '../../presentation/screens/home_screen.dart';
 import '../../presentation/screens/team_setup_screen.dart';
 import '../../presentation/screens/category_selection_screen.dart';
+import '../../presentation/screens/custom_question_screen.dart';
 import '../../presentation/screens/difficulty_selection_screen.dart';
+import '../../presentation/screens/history_screen.dart';
+import '../../presentation/screens/leaderboard_screen.dart';
 import '../../presentation/screens/question_screen.dart';
 import '../../presentation/screens/scoreboard_screen.dart';
+import '../../presentation/screens/settings_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -41,6 +45,22 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/scoreboard',
       builder: (context, state) => const ScoreboardScreen(),
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/history',
+      builder: (context, state) => const HistoryScreen(),
+    ),
+    GoRoute(
+      path: '/leaderboard',
+      builder: (context, state) => const LeaderboardScreen(),
+    ),
+    GoRoute(
+      path: '/custom-question',
+      builder: (context, state) => const CustomQuestionScreen(),
     ),
   ],
 );

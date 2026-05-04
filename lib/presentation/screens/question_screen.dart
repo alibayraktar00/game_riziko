@@ -5,9 +5,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../../core/localization/app_localizations.dart';
+import '../../core/localization/locale_provider.dart';
 import '../../domain/entities/question.dart';
 import '../../services/answer_evaluator_service.dart';
 import '../../services/audio_service.dart';
+import '../../services/settings_service.dart';
 import '../../services/speech_service.dart';
 import '../providers/game_provider.dart';
 import '../providers/providers.dart';
@@ -39,10 +42,13 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
   int? _floatingScoreValue;
   Offset? _floatingScorePosition;
 
+  AppLocalizations get _t => AppLocalizations(ref.read(localeProvider));
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _timeLeft = ref.read(settingsServiceProvider).getTimerDuration();
       _initQuestion();
       ref.read(audioServiceProvider).playBackgroundMusic();
     });
@@ -84,7 +90,7 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
     _timer?.cancel();
     setState(() {
       _answered = true;
-      _feedbackMessage = 'TIME IS UP!\nCorrect answer: ${_question?.answers.first.toUpperCase()}';
+      _feedbackMessage = '${_t.translate('time_is_up')}\n${_t.translate('correct_answer')}: ${_question?.answers.first.toUpperCase()}';
     });
     ref.read(audioServiceProvider).playBuzzer();
     _finishTurn(false);
@@ -100,15 +106,15 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
       if (result == AnswerResult.correct) {
         _answered = true;
         _timer?.cancel();
-        _feedbackMessage = 'CORRECT!';
+        _feedbackMessage = _t.translate('correct');
         ref.read(audioServiceProvider).playDing();
         _finishTurn(true);
       } else if (result == AnswerResult.almostCorrect) {
-        _feedbackMessage = 'ALMOST CORRECT! Check your spelling.';
+        _feedbackMessage = _t.translate('almost_correct');
       } else {
         _answered = true;
         _timer?.cancel();
-        _feedbackMessage = 'INCORRECT!\nThe correct answer was: ${_question!.answers.first.toUpperCase()}';
+        _feedbackMessage = '${_t.translate('incorrect')}\n${_t.translate('the_correct_answer_was')}: ${_question!.answers.first.toUpperCase()}';
         ref.read(audioServiceProvider).playBuzzer();
         _finishTurn(false);
       }
@@ -156,7 +162,7 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
       final hintText = ans.length > 2 
           ? '${ans.substring(0, 2)}${List.filled(ans.length - 2, '*').join('')}'
           : ans.characters.first;
-      _feedbackMessage = 'HINT: $hintText (Score reduced by 50%)';
+      _feedbackMessage = '${_t.translate('hint_label')}: $hintText ${_t.translate('hint_score_reduced')}';
     });
   }
 
@@ -180,7 +186,7 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Microphone permission required for this feature.')),
+          SnackBar(content: Text(_t.translate('mic_permission'))),
         );
       }
     }
@@ -195,15 +201,15 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
     setState(() {
       if (jokerKey == 'time_freeze') {
         _timeLeft += 15;
-        _feedbackMessage = 'TIME FREEZE! +15 Seconds';
+        _feedbackMessage = _t.translate('time_freeze');
       } else if (jokerKey == 'double_risk') {
         _isDoubleRiskActive = true;
-        _feedbackMessage = 'DOUBLE RISK! Correct: x2, Wrong: -x2';
+        _feedbackMessage = _t.translate('double_risk');
       } else if (jokerKey == 'pass') {
         // Pass immediately stops timer and delegates to next team
         _timer?.cancel();
         notifier.nextTurn();
-        _feedbackMessage = 'PASSED! Next team must answer.';
+        _feedbackMessage = _t.translate('passed');
         
         Future.delayed(const Duration(seconds: 2), () {
           if (!mounted) return;
@@ -234,6 +240,8 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
     final currentTeam = gameState.currentTeam;
     final isWarningTime = _timeLeft <= 5;
     final speechService = ref.watch(speechServiceProvider);
+    final locale = ref.watch(localeProvider);
+    final t = AppLocalizations(locale);
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -268,7 +276,7 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${currentTeam.name}\'s Turn',
+                            '${currentTeam.name}${t.translate('turn_suffix')}',
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                   color: Theme.of(context).colorScheme.primary,
                                   fontWeight: FontWeight.bold,
@@ -277,7 +285,7 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                           ).animate(key: ValueKey(currentTeam.id)).fadeIn().slideX(),
                           const SizedBox(height: 4),
                           Text(
-                            '${widget.category} - Lvl ${widget.difficulty}',
+                            '${t.translate(widget.category.toLowerCase())} - ${t.translate('lvl')} ${widget.difficulty}',
                             style: const TextStyle(color: Colors.white54, letterSpacing: 1),
                           ),
                         ],
@@ -320,7 +328,7 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                           child: Center(
                             child: SingleChildScrollView(
                               child: Text(
-                                _question!.questionText,
+                                _question!.getText(locale.languageCode),
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                                       fontWeight: FontWeight.w600,
@@ -342,19 +350,19 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                       children: [
                         _buildJokerButton(
                           icon: Icons.ac_unit,
-                          label: 'Freeze',
+                          label: t.translate('freeze'),
                           isAvailable: currentTeam.availableJokers['time_freeze'] ?? false,
                           onTap: () => _useJoker('time_freeze'),
                         ),
                         _buildJokerButton(
                           icon: Icons.monetization_on,
-                          label: 'x2 Risk',
+                          label: t.translate('x2_risk'),
                           isAvailable: currentTeam.availableJokers['double_risk'] ?? false,
                           onTap: () => _useJoker('double_risk'),
                         ),
                         _buildJokerButton(
                           icon: Icons.switch_right,
-                          label: 'Pass',
+                          label: t.translate('pass'),
                           isAvailable: currentTeam.availableJokers['pass'] ?? false,
                           onTap: () => _useJoker('pass'),
                         ),
@@ -369,16 +377,16 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                       padding: const EdgeInsets.all(16),
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: _feedbackMessage.startsWith('CORRECT') 
+                        color: _feedbackMessage.startsWith(_t.translate('correct')) 
                             ? Colors.green.withValues(alpha: 0.2)
-                            : _feedbackMessage.startsWith('ALMOST')
+                            : _feedbackMessage.startsWith(_t.translate('almost_correct').substring(0, 5))
                                 ? Colors.orange.withValues(alpha: 0.2)
                                 : Colors.blue.withValues(alpha: 0.2), // Default for jokers/hints
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: _feedbackMessage.startsWith('CORRECT') 
+                          color: _feedbackMessage.startsWith(_t.translate('correct')) 
                             ? Colors.green
-                            : _feedbackMessage.startsWith('ALMOST')
+                            : _feedbackMessage.startsWith(_t.translate('almost_correct').substring(0, 5))
                                 ? Colors.orange
                                 : Colors.blue,
                         ),
@@ -399,8 +407,8 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                           enabled: !_answered,
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 2),
                           textAlign: TextAlign.center,
-                          decoration: const InputDecoration(
-                            hintText: 'TYPE OR SPEAK ANSWER',
+                          decoration: InputDecoration(
+                            hintText: t.translate('type_or_speak'),
                           ),
                           onSubmitted: (_) => _evaluateAnswer(),
                         ),
@@ -445,7 +453,7 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                             side: BorderSide(color: Theme.of(context).colorScheme.primary),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           ),
-                          child: const Text('HINT', style: TextStyle(fontWeight: FontWeight.bold)),
+                          child: Text(t.translate('hint_label'), style: const TextStyle(fontWeight: FontWeight.bold)),
                         ).animate().fadeIn(delay: 500.ms),
                       ),
                       const SizedBox(width: 16),
@@ -456,7 +464,7 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 20),
                           ),
-                          child: const Text('SUBMIT'),
+                          child: Text(t.translate('submit')),
                         ).animate().fadeIn(delay: 600.ms),
                       ),
                     ],

@@ -28,7 +28,7 @@ void main() {
       id: '1',
       category: 'Science',
       difficulty: 1,
-      questionText: 'What is the chemical symbol for water?',
+      translations: {'en': 'What is the chemical symbol for water?', 'tr': 'Suyun kimyasal sembolü nedir?'},
       answers: ['h2o', 'water'],
       keywords: ['h2o'],
     );
@@ -54,7 +54,7 @@ void main() {
       id: '2',
       category: 'Science',
       difficulty: 1,
-      questionText: 'What is the chemical symbol for water?',
+      translations: {'en': 'What is the chemical symbol for water?', 'tr': 'Suyun kimyasal sembolü nedir?'},
       answers: ['water'],
       keywords: [],
     );

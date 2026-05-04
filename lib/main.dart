@@ -1,18 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'core/localization/app_localizations.dart';
+import 'core/localization/locale_provider.dart';
 import 'core/router/app_router.dart';
 
-void main() {
+import 'package:shared_preferences/shared_preferences.dart';
+import 'services/settings_service.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const ProviderScope(child: RizikoApp()));
+  final sharedPreferences = await SharedPreferences.getInstance();
+  
+  runApp(ProviderScope(
+    overrides: [
+      sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+    ],
+    child: const RizikoApp(),
+  ));
 }
 
-class RizikoApp extends StatelessWidget {
+class RizikoApp extends ConsumerWidget {
   const RizikoApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(localeProvider);
+
     // Cyber/Neon Dark Palette
     const Color backgroundDark = Color(0xFF0B0F19);
     const Color surfaceDark = Color(0xFF151E2E);
@@ -24,6 +39,17 @@ class RizikoApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'Riziko Quiz Game',
       debugShowCheckedModeBanner: false,
+      locale: locale,
+      supportedLocales: const [
+        Locale('tr'),
+        Locale('en'),
+      ],
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,

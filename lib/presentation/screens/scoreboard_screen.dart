@@ -4,6 +4,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:confetti/confetti.dart';
+import '../../core/localization/app_localizations.dart';
+import '../../core/localization/locale_provider.dart';
+import '../../domain/entities/leaderboard_entry.dart';
+import '../../domain/entities/match_result.dart';
+import '../../services/history_service.dart';
 import '../providers/game_provider.dart';
 
 class ScoreboardScreen extends ConsumerStatefulWidget {
@@ -22,7 +27,34 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
     _confettiController = ConfettiController(duration: const Duration(seconds: 5));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _confettiController.play();
+      _saveMatchData();
     });
+  }
+
+  void _saveMatchData() async {
+    final gameState = ref.read(gameProvider);
+    if (gameState.teams.isEmpty) return;
+
+    final teams = List.of(gameState.teams)..sort((a, b) => b.score.compareTo(a.score));
+    final historyService = ref.read(historyServiceProvider);
+    
+    // Save Match Result
+    final matchResult = MatchResult(
+      id: gameState.id,
+      date: DateTime.now(),
+      winnerTeamName: teams.first.name,
+      winnerScore: teams.first.score,
+      teams: teams.map((t) => TeamResult(name: t.name, score: t.score)).toList(),
+    );
+    await historyService.saveMatchResult(matchResult);
+
+    // Save Leaderboard Entries
+    final leaderboardEntries = teams.map((t) => LeaderboardEntry(
+      teamName: t.name,
+      score: t.score,
+      date: DateTime.now(),
+    )).toList();
+    await historyService.saveLeaderboardEntries(leaderboardEntries);
   }
 
   @override
@@ -35,10 +67,12 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
   Widget build(BuildContext context) {
     final gameState = ref.watch(gameProvider);
     final teams = List.of(gameState.teams)..sort((a, b) => b.score.compareTo(a.score));
+    final locale = ref.watch(localeProvider);
+    final t = AppLocalizations(locale);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('FINAL SCORES', style: TextStyle(letterSpacing: 2)),
+        title: Text(t.translate('final_scores'), style: const TextStyle(letterSpacing: 2)),
       ),
       body: Stack(
         children: [
@@ -131,7 +165,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                           side: BorderSide(color: Theme.of(context).colorScheme.primary),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
-                        child: const Text('NEW GAME'),
+                        child: Text(t.translate('new_game')),
                       ).animate().fadeIn(delay: 1.seconds),
                     ),
                     const SizedBox(width: 16),
@@ -142,7 +176,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 20),
                         ),
-                        child: const Text('CONTINUE GAME'),
+                        child: Text(t.translate('continue_game')),
                       ).animate().fadeIn(delay: 1.2.seconds),
                     ),
                   ],

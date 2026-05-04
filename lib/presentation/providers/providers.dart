@@ -3,8 +3,11 @@ import '../../data/repositories/question_repository_impl.dart';
 import '../../domain/repositories/question_repository.dart';
 import '../../services/answer_evaluator_service.dart';
 
+import '../../services/custom_content_service.dart';
+
 final questionRepositoryProvider = Provider<QuestionRepository>((ref) {
-  return QuestionRepositoryImpl();
+  final customContentService = ref.watch(customContentServiceProvider);
+  return QuestionRepositoryImpl(customContentService);
 });
 
 final answerEvaluatorServiceProvider = Provider<AnswerEvaluatorService>((ref) {

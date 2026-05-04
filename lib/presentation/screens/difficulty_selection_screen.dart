@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/localization/app_localizations.dart';
+import '../../core/localization/locale_provider.dart';
 import '../providers/game_provider.dart';
 
 class DifficultySelectionScreen extends ConsumerWidget {
@@ -12,6 +14,8 @@ class DifficultySelectionScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final gameState = ref.watch(gameProvider);
+    final locale = ref.watch(localeProvider);
+    final t = AppLocalizations(locale);
     final availableQuestions = gameState.availableQuestions.where((q) => q.category == category).toList();
     
     final availableDifficulties = availableQuestions.map((q) => q.difficulty).toSet().toList();
@@ -19,7 +23,7 @@ class DifficultySelectionScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${category.toUpperCase()} - DIFFICULTY'),
+        title: Text('${t.translate(category.toLowerCase()).toUpperCase()} - ${t.translate('difficulty')}'),
       ),
       body: Column(
         children: [
@@ -41,9 +45,9 @@ class DifficultySelectionScreen extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                const Text(
-                  'CURRENT TURN',
-                  style: TextStyle(color: Colors.white54, letterSpacing: 2, fontSize: 12),
+                Text(
+                  t.translate('current_turn'),
+                  style: const TextStyle(color: Colors.white54, letterSpacing: 2, fontSize: 12),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -110,7 +114,7 @@ class DifficultySelectionScreen extends ConsumerWidget {
                         enabled: isAvailable,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         title: Text(
-                          'LEVEL $difficultyLevel',
+                          '${t.translate('level')} $difficultyLevel',
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 color: isAvailable ? Colors.white : Colors.white38,
                                 fontWeight: FontWeight.bold,

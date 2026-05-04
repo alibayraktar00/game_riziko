@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/localization/app_localizations.dart';
+import '../../core/localization/locale_provider.dart';
 import '../providers/game_provider.dart';
 import '../providers/providers.dart';
+import '../widgets/language_picker_button.dart';
 
 class CategorySelectionScreen extends ConsumerWidget {
   const CategorySelectionScreen({super.key});
@@ -12,12 +15,16 @@ class CategorySelectionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final questionsAsync = ref.watch(questionsProvider);
     final gameState = ref.watch(gameProvider);
+    final locale = ref.watch(localeProvider);
+    final t = AppLocalizations(locale);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CATEGORIES'),
+        title: Text(t.translate('categories')),
         automaticallyImplyLeading: false,
         actions: [
+          const LanguagePickerButton(),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.leaderboard_rounded),
             color: Theme.of(context).colorScheme.primary,
@@ -45,14 +52,14 @@ class CategorySelectionScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'GAME OVER!',
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                  Text(
+                    t.translate('game_over'),
+                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
                   ).animate().fadeIn().scaleXY(),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () => context.push('/scoreboard'),
-                    child: const Text('VIEW FINAL SCORES'),
+                    child: Text(t.translate('view_final_scores')),
                   ).animate().fadeIn(delay: 500.ms),
                 ],
               ),
@@ -81,9 +88,9 @@ class CategorySelectionScreen extends ConsumerWidget {
                 ),
                 child: Column(
                   children: [
-                    const Text(
-                      'CURRENT TURN',
-                      style: TextStyle(color: Colors.white54, letterSpacing: 2, fontSize: 12),
+                    Text(
+                      t.translate('current_turn'),
+                      style: const TextStyle(color: Colors.white54, letterSpacing: 2, fontSize: 12),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -142,7 +149,7 @@ class CategorySelectionScreen extends ConsumerWidget {
                           ),
                           child: Center(
                             child: Text(
-                              category.toUpperCase(),
+                              t.translate(category.toLowerCase()).toUpperCase(),
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.bold,

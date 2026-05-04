@@ -30,16 +30,12 @@ class AnswerEvaluatorService {
     final normalizedInput = normalizeText(userAnswer);
 
     // 1. Keyword-based validation
-    // All keywords must be present in the user's answer for it to be considered correct.
+    // En az bir keyword kullanıcının cevabında bulunmalıdır (OR mantığı).
     if (question.keywords.isNotEmpty) {
-      bool hasAllKeywords = true;
-      for (final keyword in question.keywords) {
-        if (!normalizedInput.contains(normalizeText(keyword))) {
-          hasAllKeywords = false;
-          break;
-        }
-      }
-      if (!hasAllKeywords) {
+      final hasAnyKeyword = question.keywords.any(
+        (keyword) => normalizedInput.contains(normalizeText(keyword)),
+      );
+      if (!hasAnyKeyword) {
         return AnswerResult.incorrect;
       }
     }
