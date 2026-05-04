@@ -238,7 +238,6 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
 
     final gameState = ref.watch(gameProvider);
     final currentTeam = gameState.currentTeam;
-    final isWarningTime = _timeLeft <= 5;
     final speechService = ref.watch(speechServiceProvider);
     final locale = ref.watch(localeProvider);
     final t = AppLocalizations(locale);
@@ -272,42 +271,13 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${currentTeam.name}${t.translate('turn_suffix')}',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.5,
-                                ),
-                          ).animate(key: ValueKey(currentTeam.id)).fadeIn().slideX(),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${t.translate(widget.category.toLowerCase())} - ${t.translate('lvl')} ${widget.difficulty}',
-                            style: const TextStyle(color: Colors.white54, letterSpacing: 1),
-                          ),
-                        ],
+                      _QuestionHeader(
+                        teamName: currentTeam.name,
+                        category: widget.category,
+                        difficulty: widget.difficulty,
+                        t: t,
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: isWarningTime ? Colors.red.withValues(alpha: 0.2) : Theme.of(context).colorScheme.surface,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: isWarningTime ? Colors.red : Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
-                          ),
-                        ),
-                        child: Text(
-                          '00:${_timeLeft.toString().padLeft(2, '0')}',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: isWarningTime ? Colors.redAccent : Colors.white,
-                          ),
-                        ),
-                      ).animate(target: isWarningTime ? 1 : 0).scaleXY(end: 1.1).tint(color: Colors.red).shake(),
+                      _TimerDisplay(timeLeft: _timeLeft),
                     ],
                   ),
                   const SizedBox(height: 32),
@@ -345,29 +315,11 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
 
                   // Jokers Row
                   if (!_answered)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildJokerButton(
-                          icon: Icons.ac_unit,
-                          label: t.translate('freeze'),
-                          isAvailable: currentTeam.availableJokers['time_freeze'] ?? false,
-                          onTap: () => _useJoker('time_freeze'),
-                        ),
-                        _buildJokerButton(
-                          icon: Icons.monetization_on,
-                          label: t.translate('x2_risk'),
-                          isAvailable: currentTeam.availableJokers['double_risk'] ?? false,
-                          onTap: () => _useJoker('double_risk'),
-                        ),
-                        _buildJokerButton(
-                          icon: Icons.switch_right,
-                          label: t.translate('pass'),
-                          isAvailable: currentTeam.availableJokers['pass'] ?? false,
-                          onTap: () => _useJoker('pass'),
-                        ),
-                      ],
-                    ).animate().fadeIn(delay: 300.ms),
+                    _JokerActions(
+                      currentTeam: currentTeam,
+                      onUseJoker: _useJoker,
+                      t: t,
+                    ),
 
                   const SizedBox(height: 16),
                   
@@ -502,13 +454,98 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
       ),
     );
   }
+}
 
-  Widget _buildJokerButton({
-    required IconData icon,
-    required String label,
-    required bool isAvailable,
-    required VoidCallback onTap,
-  }) {
+class _QuestionHeader extends StatelessWidget {
+  final String teamName;
+  final String category;
+  final int difficulty;
+  final AppLocalizations t;
+
+  const _QuestionHeader({
+    required this.teamName,
+    required this.category,
+    required this.difficulty,
+    required this.t,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$teamName${t.translate('turn_suffix')}',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5,
+              ),
+        ).animate(key: ValueKey(teamName)).fadeIn().slideX(),
+        const SizedBox(height: 4),
+        Text(
+          '${t.translate(category.toLowerCase())} - ${t.translate('lvl')} $difficulty',
+          style: const TextStyle(color: Colors.white54, letterSpacing: 1),
+        ),
+      ],
+    );
+  }
+}
+
+class _JokerActions extends StatelessWidget {
+  final dynamic currentTeam; // Using dynamic for simplicity or use Team type
+  final Function(String) onUseJoker;
+  final AppLocalizations t;
+
+  const _JokerActions({
+    required this.currentTeam,
+    required this.onUseJoker,
+    required this.t,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _JokerButton(
+          icon: Icons.ac_unit,
+          label: t.translate('freeze'),
+          isAvailable: currentTeam.availableJokers['time_freeze'] ?? false,
+          onTap: () => onUseJoker('time_freeze'),
+        ),
+        _JokerButton(
+          icon: Icons.monetization_on,
+          label: t.translate('x2_risk'),
+          isAvailable: currentTeam.availableJokers['double_risk'] ?? false,
+          onTap: () => onUseJoker('double_risk'),
+        ),
+        _JokerButton(
+          icon: Icons.switch_right,
+          label: t.translate('pass'),
+          isAvailable: currentTeam.availableJokers['pass'] ?? false,
+          onTap: () => onUseJoker('pass'),
+        ),
+      ],
+    ).animate().fadeIn(delay: 300.ms);
+  }
+}
+
+class _JokerButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isAvailable;
+  final VoidCallback onTap;
+
+  const _JokerButton({
+    required this.icon,
+    required this.label,
+    required this.isAvailable,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: isAvailable ? onTap : null,
       child: Column(
@@ -546,5 +583,34 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
         ],
       ),
     );
+  }
+}
+
+class _TimerDisplay extends StatelessWidget {
+  final int timeLeft;
+
+  const _TimerDisplay({required this.timeLeft});
+
+  @override
+  Widget build(BuildContext context) {
+    final isWarningTime = timeLeft <= 5;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: isWarningTime ? Colors.red.withValues(alpha: 0.2) : Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isWarningTime ? Colors.red : Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Text(
+        '00:${timeLeft.toString().padLeft(2, '0')}',
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: isWarningTime ? Colors.redAccent : Colors.white,
+        ),
+      ),
+    ).animate(target: isWarningTime ? 1 : 0).scaleXY(end: 1.1).tint(color: Colors.red).shake();
   }
 }

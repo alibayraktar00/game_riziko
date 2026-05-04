@@ -66,100 +66,21 @@ class CategorySelectionScreen extends ConsumerWidget {
             );
           }
 
-          final currentTeam = gameState.currentTeam;
+          final currentTeamName = ref.watch(gameProvider.select((s) => s.currentTeam.name));
 
           return Column(
             children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                      Colors.transparent,
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                  border: Border(
-                    bottom: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      t.translate('current_turn'),
-                      style: const TextStyle(color: Colors.white54, letterSpacing: 2, fontSize: 12),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      currentTeam.name.toUpperCase(),
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 2,
-                            shadows: [
-                              Shadow(
-                                color: Theme.of(context).colorScheme.primary,
-                                blurRadius: 10,
-                              ),
-                            ],
-                          ),
-                    ).animate(onPlay: (c) => c.repeat(reverse: true)).fadeIn().shimmer(duration: 2.seconds),
-                  ],
-                ),
-              ),
+              _CurrentTeamHeader(teamName: currentTeamName, t: t),
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(24),
                   itemCount: categories.length,
                   itemBuilder: (context, index) {
                     final category = categories[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: InkWell(
-                        onTap: () {
-                          context.push('/difficulty-selection', extra: category);
-                        },
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          height: 80,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            gradient: LinearGradient(
-                              colors: [
-                                Theme.of(context).colorScheme.surface,
-                                Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.1),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.5),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              t.translate(category.toLowerCase()).toUpperCase(),
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    letterSpacing: 1.5,
-                                  ),
-                            ),
-                          ),
-                        ),
-                      ).animate().fadeIn(delay: (index * 100).ms).slideX(begin: -0.2, end: 0, curve: Curves.easeOutBack),
+                    return _CategoryItem(
+                      category: category,
+                      index: index,
+                      t: t,
                     );
                   },
                 ),
@@ -170,6 +91,118 @@ class CategorySelectionScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('Error: $error')),
       ),
+    );
+  }
+}
+
+class _CurrentTeamHeader extends StatelessWidget {
+  final String teamName;
+  final AppLocalizations t;
+
+  const _CurrentTeamHeader({required this.teamName, required this.t});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+            Colors.transparent,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(
+            t.translate('current_turn'),
+            style: const TextStyle(color: Colors.white54, letterSpacing: 2, fontSize: 12),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            teamName.toUpperCase(),
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2,
+                  shadows: [
+                    Shadow(
+                      color: Theme.of(context).colorScheme.primary,
+                      blurRadius: 10,
+                    ),
+                  ],
+                ),
+          ).animate(onPlay: (c) => c.repeat(reverse: true)).fadeIn().shimmer(duration: 2.seconds),
+        ],
+      ),
+    );
+  }
+}
+
+class _CategoryItem extends StatelessWidget {
+  final String category;
+  final int index;
+  final AppLocalizations t;
+
+  const _CategoryItem({
+    required this.category,
+    required this.index,
+    required this.t,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: InkWell(
+        onTap: () {
+          context.push('/difficulty-selection', extra: category);
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          height: 80,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.surface,
+                Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.1),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.5),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Text(
+              t.translate(category.toLowerCase()).toUpperCase(),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 1.5,
+                  ),
+            ),
+          ),
+        ),
+      ).animate().fadeIn(delay: (index * 100).ms).slideX(begin: -0.2, end: 0, curve: Curves.easeOutBack),
     );
   }
 }
