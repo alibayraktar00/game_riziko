@@ -2,17 +2,34 @@ import 'package:equatable/equatable.dart';
 import 'team.dart';
 import 'question.dart';
 
+enum GameStatus {
+  waiting,
+  inProgress,
+  paused,
+  finished,
+}
+
 class GameSession extends Equatable {
   final String id;
   final List<Team> teams;
   final int currentTeamIndex;
   final List<Question> availableQuestions;
+  final DateTime createdAt;
+  final String? hostDeviceId;
+  final List<String> connectedDeviceIds;
+  final bool isMultiplayer;
+  final GameStatus status;
 
   const GameSession({
     required this.id,
     required this.teams,
     this.currentTeamIndex = 0,
     this.availableQuestions = const [],
+    required this.createdAt,
+    this.hostDeviceId,
+    this.connectedDeviceIds = const [],
+    this.isMultiplayer = false,
+    this.status = GameStatus.waiting,
   });
 
   Team get currentTeam => teams[currentTeamIndex];
@@ -22,15 +39,35 @@ class GameSession extends Equatable {
     List<Team>? teams,
     int? currentTeamIndex,
     List<Question>? availableQuestions,
+    DateTime? createdAt,
+    String? hostDeviceId,
+    List<String>? connectedDeviceIds,
+    bool? isMultiplayer,
+    GameStatus? status,
   }) {
     return GameSession(
       id: id ?? this.id,
       teams: teams ?? this.teams,
       currentTeamIndex: currentTeamIndex ?? this.currentTeamIndex,
       availableQuestions: availableQuestions ?? this.availableQuestions,
+      createdAt: createdAt ?? this.createdAt,
+      hostDeviceId: hostDeviceId ?? this.hostDeviceId,
+      connectedDeviceIds: connectedDeviceIds ?? this.connectedDeviceIds,
+      isMultiplayer: isMultiplayer ?? this.isMultiplayer,
+      status: status ?? this.status,
     );
   }
 
   @override
-  List<Object?> get props => [id, teams, currentTeamIndex, availableQuestions];
+  List<Object?> get props => [
+        id, 
+        teams, 
+        currentTeamIndex, 
+        availableQuestions, 
+        createdAt, 
+        hostDeviceId, 
+        connectedDeviceIds, 
+        isMultiplayer, 
+        status
+      ];
 }

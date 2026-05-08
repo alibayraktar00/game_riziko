@@ -9,6 +9,9 @@ import '../../presentation/screens/leaderboard_screen.dart';
 import '../../presentation/screens/question_screen.dart';
 import '../../presentation/screens/scoreboard_screen.dart';
 import '../../presentation/screens/settings_screen.dart';
+import '../../presentation/screens/qr_scanner_screen.dart';
+import '../../presentation/screens/qr_display_screen.dart';
+import '../../presentation/screens/multiplayer_lobby_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -61,6 +64,31 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/custom-question',
       builder: (context, state) => const CustomQuestionScreen(),
+    ),
+    GoRoute(
+      path: '/multiplayer/scan',
+      builder: (context, state) => const QRScannerScreen(),
+    ),
+    GoRoute(
+      path: '/multiplayer/qr/:sessionId',
+      builder: (context, state) {
+        final sessionId = state.pathParameters['sessionId']!;
+        return QRDisplayScreen(sessionId: sessionId);
+      },
+    ),
+    GoRoute(
+      path: '/multiplayer/lobby/:sessionId',
+      builder: (context, state) {
+        final sessionId = state.pathParameters['sessionId']!;
+        return MultiplayerLobbyScreen(sessionId: sessionId);
+      },
+    ),
+    GoRoute(
+      path: '/multiplayer/join/:sessionId',
+      builder: (context, state) {
+        final sessionId = state.pathParameters['sessionId']!;
+        return MultiplayerLobbyScreen(sessionId: sessionId);
+      },
     ),
   ],
 );

@@ -31,6 +31,24 @@ class Team extends Equatable {
     );
   }
 
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'score': score,
+      'availableJokers': availableJokers,
+    };
+  }
+
+  static Team fromMap(Map<String, dynamic> map) {
+    return Team(
+      id: map['id'] as String,
+      name: map['name'] as String,
+      score: map['score'] as int? ?? 0,
+      availableJokers: Map<String, bool>.from(map['availableJokers'] as Map? ?? {}),
+    );
+  }
+
   @override
   List<Object?> get props => [id, name, score, availableJokers];
 }

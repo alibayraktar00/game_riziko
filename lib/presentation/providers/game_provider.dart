@@ -9,7 +9,11 @@ class GameNotifier extends Notifier<GameSession> {
 
   @override
   GameSession build() {
-    return GameSession(id: _uuid.v4(), teams: const []);
+    return GameSession(
+      id: _uuid.v4(), 
+      teams: const [],
+      createdAt: DateTime.now(),
+    );
   }
 
   void addTeam(String name) {
@@ -38,7 +42,11 @@ class GameNotifier extends Notifier<GameSession> {
   }
 
   void resetGame() {
-    state = GameSession(id: _uuid.v4(), teams: state.teams.map((t) => t.copyWith(score: 0)).toList());
+    state = GameSession(
+      id: _uuid.v4(), 
+      teams: state.teams.map((t) => t.copyWith(score: 0)).toList(),
+      createdAt: DateTime.now(),
+    );
   }
 
   void removeQuestion(String id) {
