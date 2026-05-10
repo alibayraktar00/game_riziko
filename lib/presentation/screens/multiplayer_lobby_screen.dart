@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/entities/game_session.dart';
-import '../../services/multiplayer_service.dart';
+import '../providers/multiplayer_provider.dart';
 
 class MultiplayerLobbyScreen extends ConsumerStatefulWidget {
   final String sessionId;

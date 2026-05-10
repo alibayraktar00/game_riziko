@@ -10,7 +10,16 @@ class GameSessionRepositoryImpl implements GameSessionRepository {
   GameSessionRepositoryImpl({
     FirebaseFirestore? firestore,
   }) : _firestore = firestore ?? FirebaseFirestore.instance,
-       _model = GameSessionModel();
+       _model = GameSessionModel(
+         id: '',
+         teams: [],
+         currentTeamIndex: 0,
+         availableQuestions: [],
+         createdAt: DateTime.now(),
+         connectedDeviceIds: [],
+         isMultiplayer: false,
+         status: GameStatus.waiting,
+       );
 
   @override
   Future<GameSession> createGameSession(GameSession session) async {

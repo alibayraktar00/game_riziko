@@ -53,10 +53,10 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'your-api-key-here',
-    appId: 'your-app-id-here',
-    messagingSenderId: 'your-sender-id-here',
-    projectId: 'your-project-id-here',
-    storageBucket: 'your-storage-bucket-here',
+    apiKey: 'AIzaSyBlLE2HXMzt3vKJ_Y0xmIRDgfmByUFrmhc',
+    appId: '1:597482279851:android:d306df64a79c8d34d5f8ee',
+    messagingSenderId: '597482279851',
+    projectId: 'riziko-72c8f',
+    storageBucket: 'riziko-72c8f.firebasestorage.app',
   );
 }
