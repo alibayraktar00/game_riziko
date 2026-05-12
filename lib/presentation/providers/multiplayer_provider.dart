@@ -1,30 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../data/repositories/game_session_repository_impl.dart';
-import '../../domain/repositories/game_session_repository.dart';
-import '../../services/multiplayer_service.dart';
-import '../../services/qr_service.dart';
 
-// Firebase Firestore Provider
-final firestoreProvider = Provider<FirebaseFirestore>((ref) {
-  return FirebaseFirestore.instance;
-});
+// Mock providers for multiplayer functionality
+final gameCodeProvider = Provider<String>((ref) => '');
 
-// Game Session Repository Provider
-final gameSessionRepositoryProvider = Provider<GameSessionRepository>((ref) {
-  return GameSessionRepositoryImpl(
-    firestore: ref.watch(firestoreProvider),
-  );
-});
+final playerListProvider = Provider<List<Map<String, dynamic>>>((ref) => []);
 
-// QR Service Provider
-final qrServiceProvider = Provider<QRService>((ref) {
-  return QRService();
-});
+final isGameStartedProvider = Provider<bool>((ref) => false);
 
-// Multiplayer Service Provider
-final multiplayerServiceProvider = Provider<MultiplayerService>((ref) {
-  return MultiplayerService(
-    repository: ref.watch(gameSessionRepositoryProvider),
-  );
-});
+final playerCountProvider = Provider<int>((ref) => 0);

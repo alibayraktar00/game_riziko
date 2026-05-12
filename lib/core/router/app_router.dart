@@ -1,93 +1,54 @@
 import 'package:go_router/go_router.dart';
-import '../../presentation/screens/home_screen.dart';
-import '../../presentation/screens/team_setup_screen.dart';
-import '../../presentation/screens/category_selection_screen.dart';
-import '../../presentation/screens/custom_question_screen.dart';
-import '../../presentation/screens/difficulty_selection_screen.dart';
-import '../../presentation/screens/history_screen.dart';
-import '../../presentation/screens/leaderboard_screen.dart';
-import '../../presentation/screens/question_screen.dart';
-import '../../presentation/screens/scoreboard_screen.dart';
-import '../../presentation/screens/settings_screen.dart';
-import '../../presentation/screens/qr_scanner_screen.dart';
-import '../../presentation/screens/qr_display_screen.dart';
-import '../../presentation/screens/multiplayer_lobby_screen.dart';
+import 'package:flutter/material.dart';
+import '../../presentation/screens/splash_screen.dart';
+import '../../presentation/screens/admin_screen.dart';
+import '../../presentation/screens/qr_scan_screen.dart';
+import '../../presentation/screens/nickname_screen.dart';
+import '../../presentation/screens/waiting_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const HomeScreen(),
+      builder: (context, state) => const SplashScreen(),
     ),
     GoRoute(
-      path: '/team-setup',
-      builder: (context, state) => const TeamSetupScreen(),
+      path: '/admin',
+      builder: (context, state) => const AdminScreen(),
     ),
     GoRoute(
-      path: '/category-selection',
-      builder: (context, state) => const CategorySelectionScreen(),
+      path: '/player',
+      builder: (context, state) => const QRScanScreen(),
     ),
     GoRoute(
-      path: '/difficulty-selection',
+      path: '/nickname',
       builder: (context, state) {
-        final category = state.extra as String;
-        return DifficultySelectionScreen(category: category);
+        final code = state.uri.queryParameters['code'] ?? '';
+        return NicknameScreen(gameCode: code);
       },
     ),
     GoRoute(
-      path: '/question',
+      path: '/waiting',
       builder: (context, state) {
-        final args = state.extra as Map<String, dynamic>;
-        return QuestionScreen(
-          category: args['category'] as String,
-          difficulty: args['difficulty'] as int,
+        final uri = state.uri;
+        final code = uri.queryParameters['code'] ?? '';
+        final playerId = uri.queryParameters['playerId'] ?? '';
+        return WaitingScreen(
+          gameCode: code,
+          playerId: playerId,
         );
       },
     ),
     GoRoute(
-      path: '/scoreboard',
-      builder: (context, state) => const ScoreboardScreen(),
-    ),
-    GoRoute(
-      path: '/settings',
-      builder: (context, state) => const SettingsScreen(),
-    ),
-    GoRoute(
-      path: '/history',
-      builder: (context, state) => const HistoryScreen(),
-    ),
-    GoRoute(
-      path: '/leaderboard',
-      builder: (context, state) => const LeaderboardScreen(),
-    ),
-    GoRoute(
-      path: '/custom-question',
-      builder: (context, state) => const CustomQuestionScreen(),
-    ),
-    GoRoute(
-      path: '/multiplayer/scan',
-      builder: (context, state) => const QRScannerScreen(),
-    ),
-    GoRoute(
-      path: '/multiplayer/qr/:sessionId',
+      path: '/game/:gameCode',
       builder: (context, state) {
-        final sessionId = state.pathParameters['sessionId']!;
-        return QRDisplayScreen(sessionId: sessionId);
-      },
-    ),
-    GoRoute(
-      path: '/multiplayer/lobby/:sessionId',
-      builder: (context, state) {
-        final sessionId = state.pathParameters['sessionId']!;
-        return MultiplayerLobbyScreen(sessionId: sessionId);
-      },
-    ),
-    GoRoute(
-      path: '/multiplayer/join/:sessionId',
-      builder: (context, state) {
-        final sessionId = state.pathParameters['sessionId']!;
-        return MultiplayerLobbyScreen(sessionId: sessionId);
+        // TODO: Create GameScreen
+        return Scaffold(
+          body: Center(
+            child: Text('Game Screen - Coming Soon'),
+          ),
+        );
       },
     ),
   ],
