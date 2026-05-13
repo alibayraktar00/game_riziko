@@ -26,6 +26,10 @@ class _QRScanScreenState extends State<QRScanScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.go('/mode-selection'),
+        ),
         backgroundColor: const Color(0xFF1A1A2E),
         foregroundColor: const Color(0xFFFFD700),
         elevation: 0,
@@ -196,19 +200,23 @@ class _QRScanScreenState extends State<QRScanScreen> {
     try {
       final uri = Uri.parse(url);
       return uri.scheme == 'riziko' && 
-             uri.path == '/join' && 
+             (uri.host == 'game' || uri.path == '/game') && 
              uri.queryParameters.containsKey('code');
     } catch (e) {
-      return false;
+      // If not a URL, check if it's a 4-character alphanumeric code
+      return url.length == 4 && RegExp(r'^[A-Z0-9]+$').hasMatch(url);
     }
   }
 
   String _extractCodeFromUrl(String url) {
     try {
       final uri = Uri.parse(url);
-      return uri.queryParameters['code'] ?? '';
+      if (uri.scheme == 'riziko') {
+        return uri.queryParameters['code'] ?? '';
+      }
+      return url; // Fallback to raw code
     } catch (e) {
-      return '';
+      return url;
     }
   }
 

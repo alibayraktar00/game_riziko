@@ -29,8 +29,7 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
   }
 
   void _startGame() {
-    final locale = ref.read(localeProvider);
-    final t = AppLocalizations(locale);
+    final t = AppLocalizations(ref.read(localeProvider));
     final teams = ref.read(gameProvider).teams;
     if (teams.length >= 2) {
       context.go('/category-selection');
@@ -50,12 +49,15 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
   @override
   Widget build(BuildContext context) {
     final gameState = ref.watch(gameProvider);
-    final locale = ref.watch(localeProvider);
-    final t = AppLocalizations(locale);
+    final t = AppLocalizations(ref.watch(localeProvider));
 
     return Scaffold(
       appBar: AppBar(
         title: Text(t.translate('setup_teams')),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.go('/mode-selection'),
+        ),
         actions: const [
           LanguagePickerButton(),
           SizedBox(width: 12),

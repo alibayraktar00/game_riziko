@@ -160,55 +160,7 @@ class _SplashScreenState extends State<SplashScreen>
                 },
                 child: Column(
                   children: [
-                    // Admin Button
-                    Container(
-                      width: 280,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFFFD700), Color(0xFFFF6B35)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          AppTheme.neonShadow,
-                          BoxShadow(
-                            color: const Color(0xFFFF6B35).withValues(alpha: 0.4),
-                            blurRadius: 20,
-                            spreadRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () => context.go('/admin'),
-                          borderRadius: BorderRadius.circular(16),
-                          child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.admin_panel_settings,
-                                  color: Color(0xFF1A1A2E),
-                                  size: 24,
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  'YÖNETİCİ GİRİŞİ',
-                                  style: AppTheme.buttonStyle,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 20),
-                    
-                    // Player Button
+                    // Start Button
                     Container(
                       width: 280,
                       height: 60,
@@ -231,20 +183,20 @@ class _SplashScreenState extends State<SplashScreen>
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: () => context.go('/player'),
+                          onTap: () => context.go('/mode-selection'),
                           borderRadius: BorderRadius.circular(16),
                           child: Center(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const Icon(
-                                  Icons.videogame_asset,
+                                  Icons.play_arrow_rounded,
                                   color: Color(0xFF1A1A2E),
-                                  size: 24,
+                                  size: 32,
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
-                                  'OYUNCU GİRİŞİ',
+                                  'OYUNA BAŞLA',
                                   style: AppTheme.buttonStyle,
                                 ),
                               ],

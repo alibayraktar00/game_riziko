@@ -267,6 +267,35 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Back Button Row
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white70),
+                        onPressed: () {
+                          // Show confirmation dialog before exiting during a question
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('Oyundan Çık?'),
+                              content: const Text('Mevcut sorudan çıkmak istediğinize emin misiniz?'),
+                              actions: [
+                                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('HAYIR')),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(ctx);
+                                    context.pop();
+                                  },
+                                  child: const Text('EVET'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   // Header
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

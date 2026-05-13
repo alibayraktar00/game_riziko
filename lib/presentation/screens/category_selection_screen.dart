@@ -21,7 +21,10 @@ class CategorySelectionScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(t.translate('categories')),
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.go('/team-setup'),
+        ),
         actions: [
           const LanguagePickerButton(),
           const SizedBox(width: 8),

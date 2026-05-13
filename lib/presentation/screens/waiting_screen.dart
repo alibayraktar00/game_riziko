@@ -78,10 +78,31 @@ class _WaitingScreenState extends State<WaitingScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Odadan Çık?'),
+                content: const Text('Bekleme odasından çıkmak istediğinize emin misiniz?'),
+                actions: [
+                  TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('HAYIR')),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      context.go('/mode-selection');
+                    },
+                    child: const Text('EVET'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
         backgroundColor: const Color(0xFF1A1A2E),
         foregroundColor: const Color(0xFFFFD700),
         elevation: 0,
-        automaticallyImplyLeading: false,
       ),
       body: Container(
         decoration: AppTheme.neonGradient,
@@ -98,6 +119,9 @@ class _WaitingScreenState extends State<WaitingScreen> {
                     width: 200,
                     height: 200,
                     fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => const Center(
+                      child: CircularProgressIndicator(color: Color(0xFFFFD700)),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),

@@ -1,38 +1,43 @@
-import 'package:uuid/uuid.dart';
-
 class QRService {
-  static const String _baseUrl = 'riziko://game/';
+  static const String _scheme = 'riziko';
+  static const String _host = 'game';
   
   String generateGameSessionUrl(String sessionId) {
-    return '$_baseUrl$sessionId';
+    return '$_scheme://$_host?code=$sessionId';
   }
   
   String extractSessionIdFromUrl(String url) {
-    if (url.startsWith(_baseUrl)) {
-      return url.substring(_baseUrl.length);
-    }
-    
-    // Handle different URL formats
-    if (url.contains('sessionId=')) {
+    try {
       final uri = Uri.parse(url);
-      return uri.queryParameters['sessionId'] ?? '';
+      if (uri.scheme == _scheme) {
+        return uri.queryParameters['code'] ?? url;
+      }
+      return url;
+    } catch (e) {
+      return url;
     }
-    
-    // If it's just the session ID
-    return url;
   }
   
   Future<String> generateQRCodeData(String sessionId) async {
-    final url = generateGameSessionUrl(sessionId);
-    return url;
+    return generateGameSessionUrl(sessionId);
   }
   
   String generateNewSessionId() {
-    final uuid = Uuid();
-    return uuid.v4().substring(0, 8); // Short ID for QR codes
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final random = DateTime.now().millisecondsSinceEpoch;
+    String code = '';
+    for (int i = 0; i < 4; i++) {
+      code += chars[(random + i) % chars.length];
+    }
+    return code;
   }
   
   bool isValidSessionUrl(String url) {
-    return url.startsWith(_baseUrl) || url.contains('sessionId=');
+    try {
+      final uri = Uri.parse(url);
+      return uri.scheme == _scheme && uri.queryParameters.containsKey('code');
+    } catch (e) {
+      return url.length == 4 && RegExp(r'^[A-Z0-9]+$').hasMatch(url);
+    }
   }
 }

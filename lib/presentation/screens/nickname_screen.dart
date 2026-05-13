@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:uuid/uuid.dart';
@@ -41,26 +42,33 @@ class _NicknameScreenState extends State<NicknameScreen> {
       final playerId = const Uuid().v4();
       final gameRef = FirebaseDatabase.instance.ref('games/${widget.gameCode}');
       
+      // Check if game exists
+      final snapshot = await gameRef.child('status').get().timeout(const Duration(seconds: 5));
+      if (!snapshot.exists) {
+        throw 'Geçersiz oyun kodu. Lütfen tekrar taratın.';
+      }
+
       // Add player to game
       await gameRef.child('players').child(playerId).set({
         'nickname': _nicknameController.text.trim(),
         'joinedAt': ServerValue.timestamp,
         'uid': playerId,
         'score': 0,
-      });
+      }).timeout(const Duration(seconds: 5));
 
-      // Update player count
-      await gameRef.child('playerCount').runTransaction((currentCount) {
-        final count = currentCount as int? ?? 0;
-        return Transaction.success(count + 1);
-      });
+      // Update player count using increment (more reliable than transaction)
+      await gameRef.child('playerCount').set(ServerValue.increment(1)).timeout(const Duration(seconds: 5));
 
       if (mounted) {
         context.go('/waiting?code=${widget.gameCode}&playerId=$playerId');
       }
     } catch (e) {
       if (mounted) {
-        _showError('Oyuna katılırken hata oluştu: $e');
+        String errorMsg = e.toString();
+        if (e is TimeoutException) {
+          errorMsg = 'Bağlantı zaman aşımına uğradı. Lütfen internetinizi kontrol edin.';
+        }
+        _showError(errorMsg);
       }
     } finally {
       setState(() {
@@ -98,6 +106,10 @@ class _NicknameScreenState extends State<NicknameScreen> {
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.go('/player'),
         ),
         backgroundColor: const Color(0xFF1A1A2E),
         foregroundColor: const Color(0xFFFFD700),

@@ -73,6 +73,10 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(t.translate('final_scores'), style: const TextStyle(letterSpacing: 2)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.go('/category-selection'),
+        ),
       ),
       body: Stack(
         children: [

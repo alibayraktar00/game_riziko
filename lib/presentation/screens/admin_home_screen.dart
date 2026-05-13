@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../../core/theme/app_theme.dart';
-import '../../domain/entities/team.dart';
+import '../providers/user_provider.dart';
 
 class AdminHomeScreen extends ConsumerWidget {
   const AdminHomeScreen({super.key});
@@ -18,7 +16,7 @@ class AdminHomeScreen extends ConsumerWidget {
         actions: [
           IconButton(
             onPressed: () {
-              // TODO: Get user from provider.notifier).logout();
+              ref.read(userProvider.notifier).logout();
               context.go('/');
             },
             icon: const Icon(Icons.logout),

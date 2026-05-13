@@ -26,7 +26,17 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
     super.initState();
     _gameCode = _generateGameCode();
     _gameRef = FirebaseDatabase.instance.ref('games/$_gameCode');
+    _initializeGame();
     _listenToPlayers();
+  }
+
+  Future<void> _initializeGame() async {
+    await _gameRef.set({
+      'status': 'waiting',
+      'playerCount': 0,
+      'createdAt': ServerValue.timestamp,
+      'code': _gameCode,
+    });
   }
 
   String _generateGameCode() {
@@ -92,13 +102,17 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.go('/mode-selection'),
+        ),
         backgroundColor: const Color(0xFF1A1A2E),
         foregroundColor: const Color(0xFFFFD700),
         elevation: 0,
       ),
       body: Container(
         decoration: AppTheme.neonGradient,
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
@@ -143,7 +157,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                         ],
                       ),
                       child: QrImageView(
-                        data: 'riziko://join?code=$_gameCode',
+                        data: 'riziko://game?code=$_gameCode',
                         version: QrVersions.auto,
                         size: 200.0,
                         backgroundColor: Colors.white,
@@ -169,129 +183,135 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
               const SizedBox(height: 24),
               
               // Players Section
-              Expanded(
-                child: Container(
-                  decoration: AppTheme.cardGradient,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
+              Container(
+                decoration: AppTheme.cardGradient,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
                               'KATILAN OYUNCULAR',
                               style: GoogleFonts.orbitron(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: const Color(0xFFFFD700),
                               ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFD700).withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                '${_players.length}',
-                                style: GoogleFonts.orbitron(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFFFFD700),
-                                ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFD700).withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              '${_players.length}',
+                              style: GoogleFonts.orbitron(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFFFFD700),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      
-                      const Divider(color: Color(0xFF334155), height: 1),
-                      
-                      // Players List
-                      Expanded(
-                        child: _players.isEmpty
-                            ? Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.person_off,
-                                      size: 64,
+                    ),
+                    
+                    const Divider(color: Color(0xFF334155), height: 1),
+                    
+                    // Players List
+                    _players.isEmpty
+                        ? Padding(
+                            padding: const EdgeInsets.all(40),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.person_off,
+                                    size: 64,
+                                    color: const Color(0xFF94A3B8),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'Henüz oyuncu katılmadı',
+                                    style: GoogleFonts.orbitron(
+                                      fontSize: 16,
                                       color: const Color(0xFF94A3B8),
                                     ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      'Henüz oyuncu katılmadı',
-                                      style: GoogleFonts.orbitron(
-                                        fontSize: 16,
-                                        color: const Color(0xFF94A3B8),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: const EdgeInsets.all(16),
+                            itemCount: _players.length,
+                            itemBuilder: (context, index) {
+                              final player = _players[index];
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1A1A2E).withValues(alpha: 0.6),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: const Color(0xFFFFD700).withValues(alpha: 0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: const Color(0xFFFFD700),
+                                      child: Text(
+                                        player['nickname'][0].toString().toUpperCase(),
+                                        style: GoogleFonts.orbitron(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(0xFF1A1A2E),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            player['nickname'],
+                                            style: GoogleFonts.orbitron(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: const Color(0xFFF1F5F9),
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Katıldı: ${_formatTime(player['joinedAt'])}',
+                                            style: GoogleFonts.orbitron(
+                                              fontSize: 12,
+                                              color: const Color(0xFF94A3B8),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
                                 ),
-                              )
-                            : ListView.builder(
-                                padding: const EdgeInsets.all(16),
-                                itemCount: _players.length,
-                                itemBuilder: (context, index) {
-                                  final player = _players[index];
-                                  return Container(
-                                    margin: const EdgeInsets.only(bottom: 12),
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF1A1A2E).withValues(alpha: 0.6),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: const Color(0xFFFFD700).withValues(alpha: 0.3),
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        CircleAvatar(
-                                          backgroundColor: const Color(0xFFFFD700),
-                                          child: Text(
-                                            player['nickname'][0].toString().toUpperCase(),
-                                            style: GoogleFonts.orbitron(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: const Color(0xFF1A1A2E),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                player['nickname'],
-                                                style: GoogleFonts.orbitron(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: const Color(0xFFF1F5F9),
-                                                ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                'Katıldı: ${_formatTime(player['joinedAt'])}',
-                                                style: GoogleFonts.orbitron(
-                                                  fontSize: 12,
-                                                  color: const Color(0xFF94A3B8),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                      ),
-                    ],
-                  ),
+                              );
+                            },
+                          ),
+                  ],
                 ),
               ),
               
@@ -342,24 +362,35 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                                   size: 24,
                                 ),
                                 const SizedBox(width: 12),
-                                Text(
-                                  'OYUN BAŞLADI',
-                                  style: GoogleFonts.orbitron(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF1A1A2E),
+                                Flexible(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      'OYUN BAŞLADI',
+                                      style: GoogleFonts.orbitron(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF1A1A2E),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
                             )
-                          : Text(
-                              _players.isEmpty ? 'EN AZ 1 OYUNCU GEREKLİ' : 'OYUNU BAŞLAT',
-                              style: GoogleFonts.orbitron(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: _players.isEmpty 
-                                    ? const Color(0xFF94A3B8)
-                                    : const Color(0xFF1A1A2E),
+                          : Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  _players.isEmpty ? 'EN AZ 1 OYUNCU GEREKLİ' : 'OYUNU BAŞLAT',
+                                  style: GoogleFonts.orbitron(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: _players.isEmpty 
+                                        ? const Color(0xFF94A3B8)
+                                        : const Color(0xFF1A1A2E),
+                                  ),
+                                ),
                               ),
                             ),
                     ),

@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../core/localization/app_localizations.dart';
-import '../../core/localization/locale_provider.dart';
 import '../widgets/language_picker_button.dart';
-import '../../domain/entities/team.dart';
 
 extension DurationExtensions on int {
   Duration get ms => Duration(milliseconds: this);
@@ -18,9 +14,6 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final locale = ref.watch(localeProvider);
-    final t = AppLocalizations(locale);
-
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -64,7 +57,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ).animate()
                   .fadeIn(duration: 800.ms)
-                  .scaleXY(begin: const Offset(0.5, 0.5), end: const Offset(1.0, 1.0), duration: 600.ms),
+                  .scale(begin: const Offset(0.5, 0.5), end: const Offset(1.0, 1.0), duration: 600.ms),
                 ),
                 const SizedBox(height: 32),
                 Text(
@@ -100,7 +93,7 @@ class HomeScreen extends ConsumerWidget {
                   child: const Text('Tek Oyuncu'),
                 ).animate()
                 .fadeIn(delay: 800.ms, duration: 800.ms)
-                .scaleXY(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0), duration: 600.ms),
+                .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0), duration: 600.ms),
                 const SizedBox(height: 16),
                 // Multiplayer Options
                 Container(
@@ -154,7 +147,7 @@ class HomeScreen extends ConsumerWidget {
                     ],
                   ).animate()
                   .fadeIn(delay: 600.ms, duration: 800.ms)
-                  .scaleXY(begin: const Offset(0.9, 0.9), end: const Offset(1.0, 1.0), duration: 600.ms),
+                  .scale(begin: const Offset(0.9, 0.9), end: const Offset(1.0, 1.0), duration: 600.ms),
                 ),
                 const SizedBox(height: 24),
                 // Language Picker
