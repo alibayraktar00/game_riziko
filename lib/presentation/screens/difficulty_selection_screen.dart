@@ -13,12 +13,15 @@ class DifficultySelectionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final gameState = ref.watch(gameProvider);
+    final availableQuestionsInCategory = ref.watch(gameProvider.select((s) => 
+      s.availableQuestions.where((q) => q.category == category).toList()
+    ));
+    final currentTeamName = ref.watch(gameProvider.select((s) => s.currentTeam.name));
+    
     final locale = ref.watch(localeProvider);
     final t = AppLocalizations(locale);
-    final availableQuestions = gameState.availableQuestions.where((q) => q.category == category).toList();
     
-    final availableDifficulties = availableQuestions.map((q) => q.difficulty).toSet().toList();
+    final availableDifficulties = availableQuestionsInCategory.map((q) => q.difficulty).toSet().toList();
     availableDifficulties.sort();
 
     return Scaffold(
@@ -51,7 +54,7 @@ class DifficultySelectionScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  gameState.currentTeam.name.toUpperCase(),
+                  currentTeamName.toUpperCase(),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: Theme.of(context).colorScheme.primary,

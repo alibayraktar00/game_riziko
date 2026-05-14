@@ -116,12 +116,12 @@ class _SplashScreenState extends State<SplashScreen>
                         ),
                         child: Column(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.quiz_rounded,
                               size: 80,
                               color: Colors.white,
                               shadows: [
-                                const Shadow(
+                                Shadow(
                                   color: Color(0xFFFFD700),
                                   blurRadius: 20,
                                   offset: Offset(0, 2),

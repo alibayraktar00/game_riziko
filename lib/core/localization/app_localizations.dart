@@ -70,6 +70,9 @@ class AppLocalizations {
       'geography': 'Geography',
       'sports': 'Sports',
       'entertainment': 'Entertainment',
+      'art': 'Art',
+      'technology': 'Technology',
+      'general culture': 'General Culture',
 
       // Custom Question Screen
       'create_question': 'CREATE QUESTION',
@@ -143,6 +146,9 @@ class AppLocalizations {
       'geography': 'Coğrafya',
       'sports': 'Spor',
       'entertainment': 'Eğlence',
+      'art': 'Sanat',
+      'technology': 'Teknoloji',
+      'general culture': 'Genel Kültür',
 
       // Custom Question Screen
       'create_question': 'SORU OLUŞTUR',

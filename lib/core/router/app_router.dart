@@ -7,6 +7,7 @@ import '../../presentation/screens/nickname_screen.dart';
 import '../../presentation/screens/waiting_screen.dart';
 import '../../presentation/screens/game_mode_selection_screen.dart';
 import '../../presentation/screens/team_setup_screen.dart';
+import '../../presentation/screens/category_picker_screen.dart';
 import '../../presentation/screens/category_selection_screen.dart';
 import '../../presentation/screens/difficulty_selection_screen.dart';
 import '../../presentation/screens/question_screen.dart';
@@ -53,6 +54,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/team-setup',
       builder: (context, state) => const TeamSetupScreen(),
+    ),
+    GoRoute(
+      path: '/category-picker',
+      builder: (context, state) => const CategoryPickerScreen(),
     ),
     GoRoute(
       path: '/category-selection',

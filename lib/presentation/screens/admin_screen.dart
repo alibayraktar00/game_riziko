@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
+import '../providers/multiplayer_provider.dart';
 
 class AdminScreen extends ConsumerStatefulWidget {
   const AdminScreen({super.key});
@@ -15,84 +16,81 @@ class AdminScreen extends ConsumerStatefulWidget {
 }
 
 class _AdminScreenState extends ConsumerState<AdminScreen> {
-  late String _gameCode;
+  String? _gameCode;
   late DatabaseReference _gameRef;
-  late StreamSubscription<DatabaseEvent> _playersSubscription;
+  StreamSubscription<DatabaseEvent>? _playersSubscription;
   final List<Map<String, dynamic>> _players = [];
   bool _gameStarted = false;
 
   @override
   void initState() {
     super.initState();
-    _gameCode = _generateGameCode();
-    _gameRef = FirebaseDatabase.instance.ref('games/$_gameCode');
-    _initializeGame();
-    _listenToPlayers();
+    _setupGame();
   }
 
-  Future<void> _initializeGame() async {
-    await _gameRef.set({
-      'status': 'waiting',
-      'playerCount': 0,
-      'createdAt': ServerValue.timestamp,
-      'code': _gameCode,
-    });
-  }
-
-  String _generateGameCode() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    final random = DateTime.now().millisecondsSinceEpoch;
-    String code = '';
+  Future<void> _setupGame() async {
+    final multiplayerService = ref.read(multiplayerServiceProvider);
     
-    for (int i = 0; i < 4; i++) {
-      code += chars[(random + i) % chars.length];
+    // Create session using service
+    final code = await multiplayerService.createMultiplayerSession(
+      teams: [], // Empty initially
+      availableQuestions: [],
+    );
+
+    if (mounted) {
+      setState(() {
+        _gameCode = code;
+        _gameRef = FirebaseDatabase.instance.ref('games/$_gameCode');
+      });
+      _listenToPlayers();
     }
-    
-    return code;
   }
 
   void _listenToPlayers() {
     _playersSubscription = _gameRef.child('players').onValue.listen((event) {
       if (event.snapshot.value != null) {
         final Map<dynamic, dynamic> playersData = event.snapshot.value as Map;
-        setState(() {
-          _players.clear();
-          playersData.forEach((key, value) {
-            _players.add({
-              'nickname': value['nickname'],
-              'joinedAt': value['joinedAt'],
-              'uid': key,
+        if (mounted) {
+          setState(() {
+            _players.clear();
+            playersData.forEach((key, value) {
+              _players.add({
+                'nickname': value['nickname'],
+                'joinedAt': value['joinedAt'],
+                'uid': key,
+              });
             });
           });
-        });
+        }
       }
     });
   }
 
-  void _startGame() {
-    if (_players.isEmpty) return;
+  void _startGame() async {
+    if (_players.isEmpty || _gameCode == null) return;
 
-    _gameRef.update({
-      'status': 'started',
-      'startedAt': ServerValue.timestamp,
-    });
+    await ref.read(multiplayerServiceProvider).startGame(_gameCode!);
 
-    setState(() {
-      _gameStarted = true;
-    });
-
-    // Navigate to game screen
-    context.go('/game/$_gameCode');
+    if (mounted) {
+      setState(() {
+        _gameStarted = true;
+      });
+      context.go('/game/$_gameCode');
+    }
   }
 
   @override
   void dispose() {
-    _playersSubscription.cancel();
+    _playersSubscription?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_gameCode == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -132,7 +130,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      _gameCode,
+                      _gameCode ?? '',
                       style: GoogleFonts.orbitron(
                         fontSize: 48,
                         fontWeight: FontWeight.w900,
@@ -157,7 +155,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                         ],
                       ),
                       child: QrImageView(
-                        data: 'riziko://game?code=$_gameCode',
+                        data: 'riziko://game?code=${_gameCode ?? ''}',
                         version: QrVersions.auto,
                         size: 200.0,
                         backgroundColor: Colors.white,
@@ -233,10 +231,10 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.person_off,
                                     size: 64,
-                                    color: const Color(0xFF94A3B8),
+                                    color: Color(0xFF94A3B8),
                                   ),
                                   const SizedBox(height: 16),
                                   Text(

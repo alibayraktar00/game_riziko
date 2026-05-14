@@ -158,10 +158,10 @@ class _NicknameScreenState extends State<NicknameScreen> {
                   decoration: AppTheme.cardGradient,
                   child: Column(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.person,
                         size: 64,
-                        color: const Color(0xFFFFD700),
+                        color: Color(0xFFFFD700),
                       ),
                       const SizedBox(height: 20),
                       Text(
@@ -239,13 +239,13 @@ class _NicknameScreenState extends State<NicknameScreen> {
                               ? Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 20,
                                       height: 20,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
                                         valueColor: AlwaysStoppedAnimation<Color>(
-                                          const Color(0xFF1A1A2E),
+                                          Color(0xFF1A1A2E),
                                         ),
                                       ),
                                     ),

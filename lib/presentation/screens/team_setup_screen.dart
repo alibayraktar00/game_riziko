@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_provider.dart';
 import '../providers/game_provider.dart';
+import '../providers/providers.dart';
 import '../widgets/language_picker_button.dart';
 import 'package:uuid/uuid.dart';
 import '../../services/custom_content_service.dart';
@@ -28,11 +29,13 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
     }
   }
 
-  void _startGame() {
+  void _startGame() async {
     final t = AppLocalizations(ref.read(localeProvider));
     final teams = ref.read(gameProvider).teams;
     if (teams.length >= 2) {
-      context.go('/category-selection');
+      if (mounted) {
+        context.go('/category-picker');
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(t.translate('min_teams_warning'))),

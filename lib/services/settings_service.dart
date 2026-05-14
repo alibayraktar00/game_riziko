@@ -6,10 +6,20 @@ class SettingsService {
   static const String _musicEnabledKey = 'settings_music_enabled';
   static const String _sfxEnabledKey = 'settings_sfx_enabled';
   static const String _timerDurationKey = 'settings_timer_duration';
+  static const String _themeKey = 'settings_theme_mode';
 
   final SharedPreferences _prefs;
 
   SettingsService(this._prefs);
+
+  // --- Theme ---
+  String getThemeMode() {
+    return _prefs.getString(_themeKey) ?? 'neon';
+  }
+
+  Future<void> setThemeMode(String theme) async {
+    await _prefs.setString(_themeKey, theme);
+  }
 
   // --- Locale ---
   String getLocaleCode() {

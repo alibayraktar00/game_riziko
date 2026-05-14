@@ -11,7 +11,7 @@ class PlayerGameHistoryScreen extends StatelessWidget {
         backgroundColor: Colors.green[800],
         foregroundColor: Colors.white,
       ),
-      body: Center(
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -20,7 +20,7 @@ class PlayerGameHistoryScreen extends StatelessWidget {
               size: 80,
               color: Colors.green,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               'Oyun Geçmişi',
               style: TextStyle(
@@ -29,8 +29,8 @@ class PlayerGameHistoryScreen extends StatelessWidget {
                 color: Colors.green,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               'Bu özellik yakında eklenecek',
               style: TextStyle(
                 fontSize: 16,

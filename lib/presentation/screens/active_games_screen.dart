@@ -11,7 +11,7 @@ class ActiveGamesScreen extends StatelessWidget {
         backgroundColor: Colors.orange[800],
         foregroundColor: Colors.white,
       ),
-      body: Center(
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -20,7 +20,7 @@ class ActiveGamesScreen extends StatelessWidget {
               size: 80,
               color: Colors.orange,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               'Aktif Oyunlar',
               style: TextStyle(
@@ -29,8 +29,8 @@ class ActiveGamesScreen extends StatelessWidget {
                 color: Colors.orange,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               'Bu özellik yakında eklenecek',
               style: TextStyle(
                 fontSize: 16,

@@ -130,7 +130,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 // Modern Role Selection
                 Column(
                   children: [
-                    Text(
+                    const Text(
                       'Rolünüzü Seçin',
                       style: TextStyle(
                         fontSize: 22,
@@ -221,10 +221,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       child: Center(
                         child: selectedRole != null
-                            ? Row(
+                            ? const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'DEVAM ET',
                                     style: TextStyle(
                                       fontSize: 18,
@@ -233,8 +233,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       letterSpacing: 1,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  const Icon(
+                                  SizedBox(width: 8),
+                                  Icon(
                                     Icons.arrow_forward,
                                     color: Colors.white,
                                     size: 20,

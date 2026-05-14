@@ -29,6 +29,43 @@ class GameNotifier extends Notifier<GameSession> {
     state = state.copyWith(availableQuestions: questions);
   }
 
+  void startGame(List<Question> questions) {
+    // Filter questions to keep only one per (category, difficulty) pair
+    final Map<String, Question> uniqueQuestions = {};
+    for (var q in questions) {
+      final key = '${q.category}_${q.difficulty}';
+      if (!uniqueQuestions.containsKey(key)) {
+        uniqueQuestions[key] = q;
+      }
+    }
+
+    state = state.copyWith(
+      availableQuestions: uniqueQuestions.values.toList(),
+      hasStarted: true,
+      status: GameStatus.inProgress,
+    );
+  }
+
+  void startGameWithCategories(List<Question> questions, List<String> categories) {
+    // Filter questions by selected categories and then keep only one per (category, difficulty) pair
+    final Map<String, Question> uniqueQuestions = {};
+    for (var q in questions) {
+      if (categories.contains(q.category)) {
+        final key = '${q.category}_${q.difficulty}';
+        if (!uniqueQuestions.containsKey(key)) {
+          uniqueQuestions[key] = q;
+        }
+      }
+    }
+
+    state = state.copyWith(
+      availableQuestions: uniqueQuestions.values.toList(),
+      selectedCategories: categories,
+      hasStarted: true,
+      status: GameStatus.inProgress,
+    );
+  }
+
   void nextTurn() {
     int nextIndex = (state.currentTeamIndex + 1) % state.teams.length;
     state = state.copyWith(currentTeamIndex: nextIndex);
@@ -46,6 +83,7 @@ class GameNotifier extends Notifier<GameSession> {
       id: _uuid.v4(), 
       teams: state.teams.map((t) => t.copyWith(score: 0)).toList(),
       createdAt: DateTime.now(),
+      hasStarted: false,
     );
   }
 

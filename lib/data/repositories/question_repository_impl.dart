@@ -572,6 +572,177 @@ class QuestionRepositoryImpl implements QuestionRepository {
         'answers': ['2007'],
         'keywords': ['2007'],
       },
+
+      // ───────────────── SANAT / ART ─────────────────
+      {
+        'id': 'art_1',
+        'category': 'Art',
+        'difficulty': 1,
+        'translations': {
+          'en': 'Who painted the "Mona Lisa"?',
+          'tr': '"Mona Lisa" tablosunu kim yapmıştır?',
+        },
+        'answers': ['da vinci', 'leonardo da vinci'],
+        'keywords': ['da vinci'],
+      },
+      {
+        'id': 'art_2',
+        'category': 'Art',
+        'difficulty': 2,
+        'translations': {
+          'en': 'Which Dutch artist painted "The Starry Night"?',
+          'tr': '"Yıldızlı Gece" tablosu hangi Hollandalı ressama aittir?',
+        },
+        'answers': ['van gogh', 'vincent van gogh'],
+        'keywords': ['van gogh'],
+      },
+      {
+        'id': 'art_3',
+        'category': 'Art',
+        'difficulty': 3,
+        'translations': {
+          'en': 'Who painted "The Last Supper"?',
+          'tr': '"Son Akşam Yemeği" tablosunu kim yapmıştır?',
+        },
+        'answers': ['da vinci', 'leonardo da vinci'],
+        'keywords': ['da vinci'],
+      },
+      {
+        'id': 'art_4',
+        'category': 'Art',
+        'difficulty': 4,
+        'translations': {
+          'en': 'Who is the famous Spanish surrealist painter known for melting clocks?',
+          'tr': 'Eriyen saatler tablosuyla tanınan ünlü İspanyol sürrealist ressam kimdir?',
+        },
+        'answers': ['dali', 'salvador dali'],
+        'keywords': ['dali'],
+      },
+      {
+        'id': 'art_5',
+        'category': 'Art',
+        'difficulty': 5,
+        'translations': {
+          'en': 'Who sculpted the statue of "David"?',
+          'tr': '"Davut" heykelini kim yapmıştır?',
+        },
+        'answers': ['michelangelo'],
+        'keywords': ['michelangelo'],
+      },
+
+      // ───────────────── TEKNOLOJİ / TECHNOLOGY ─────────────────
+      {
+        'id': 'tech_1',
+        'category': 'Technology',
+        'difficulty': 1,
+        'translations': {
+          'en': 'What does "WWW" stand for?',
+          'tr': '"WWW" neyin kısaltmasıdır?',
+        },
+        'answers': ['world wide web'],
+        'keywords': ['world wide web'],
+      },
+      {
+        'id': 'tech_2',
+        'category': 'Technology',
+        'difficulty': 2,
+        'translations': {
+          'en': 'Who is the co-founder of Microsoft?',
+          'tr': 'Microsoft\'un kurucu ortağı kimdir?',
+        },
+        'answers': ['bill gates', 'paul allen'],
+        'keywords': ['bill gates', 'paul allen'],
+      },
+      {
+        'id': 'tech_3',
+        'category': 'Technology',
+        'difficulty': 3,
+        'translations': {
+          'en': 'What is the main language used for Android development?',
+          'tr': 'Android geliştirme için kullanılan ana dil hangisidir?',
+        },
+        'answers': ['kotlin', 'java'],
+        'keywords': ['kotlin', 'java'],
+      },
+      {
+        'id': 'tech_4',
+        'category': 'Technology',
+        'difficulty': 4,
+        'translations': {
+          'en': 'What does "AI" stand for?',
+          'tr': '"AI" neyin kısaltmasıdır?',
+        },
+        'answers': ['artificial intelligence', 'yapay zeka'],
+        'keywords': ['artificial intelligence', 'yapay zeka'],
+      },
+      {
+        'id': 'tech_5',
+        'category': 'Technology',
+        'difficulty': 5,
+        'translations': {
+          'en': 'Who is known as the father of computers?',
+          'tr': 'Bilgisayarın babası olarak kim bilinir?',
+        },
+        'answers': ['charles babbage'],
+        'keywords': ['babbage'],
+      },
+
+      // ───────────────── GENEL KÜLTÜR / GENERAL CULTURE ─────────────────
+      {
+        'id': 'gen_1',
+        'category': 'General Culture',
+        'difficulty': 1,
+        'translations': {
+          'en': 'How many colors are there in a rainbow?',
+          'tr': 'Gökkuşağında kaç renk vardır?',
+        },
+        'answers': ['7', 'seven', 'yedi'],
+        'keywords': ['7'],
+      },
+      {
+        'id': 'gen_2',
+        'category': 'General Culture',
+        'difficulty': 2,
+        'translations': {
+          'en': 'Which is the largest animal on Earth?',
+          'tr': 'Dünyadaki en büyük hayvan hangisidir?',
+        },
+        'answers': ['blue whale', 'mavi balina'],
+        'keywords': ['blue whale', 'mavi balina'],
+      },
+      {
+        'id': 'gen_3',
+        'category': 'General Culture',
+        'difficulty': 3,
+        'translations': {
+          'en': 'Which country is known as the Land of the Rising Sun?',
+          'tr': 'Hangi ülke Doğan Güneşin Ülkesi olarak bilinir?',
+        },
+        'answers': ['japan', 'japonya'],
+        'keywords': ['japan', 'japonya'],
+      },
+      {
+        'id': 'gen_4',
+        'category': 'General Culture',
+        'difficulty': 4,
+        'translations': {
+          'en': 'What is the currency of Japan?',
+          'tr': 'Japonya\'nın para birimi nedir?',
+        },
+        'answers': ['yen'],
+        'keywords': ['yen'],
+      },
+      {
+        'id': 'gen_5',
+        'category': 'General Culture',
+        'difficulty': 5,
+        'translations': {
+          'en': 'Which language has the most native speakers?',
+          'tr': 'En fazla anadili konuşan sayısına sahip dil hangisidir?',
+        },
+        'answers': ['mandarin', 'chinese', 'çince'],
+        'keywords': ['mandarin', 'chinese', 'çince'],
+      },
     ];
   }
 
