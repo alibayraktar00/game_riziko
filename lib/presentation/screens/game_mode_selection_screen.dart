@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -20,42 +21,76 @@ class GameModeSelectionScreen extends StatelessWidget {
       extendBodyBehindAppBar: true,
       body: Container(
         decoration: AppTheme.neonGradient,
-        child: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'OYUN MODU SEÇİN',
-                  style: AppTheme.titleStyle.copyWith(fontSize: 32),
-                ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2, end: 0),
-                
-                const SizedBox(height: 60),
-                
-                // Single Device Mode
-                _ModeButton(
-                  title: 'TEK CİHAZ',
-                  subtitle: 'Aynı cihaz üzerinden sırayla oynayın',
-                  icon: Icons.smartphone_rounded,
-                  color1: const Color(0xFF00FF88),
-                  color2: const Color(0xFF00D084),
-                  onTap: () => context.go('/team-setup'),
-                ).animate().fadeIn(delay: 200.ms, duration: 600.ms).slideX(begin: -0.2, end: 0),
-                
-                const SizedBox(height: 24),
-                
-                // Multi-Device Mode
-                _ModeButton(
-                  title: 'ÇOKLU CİHAZ',
-                  subtitle: 'Herkes kendi cihazından katılsın',
-                  icon: Icons.devices_rounded,
-                  color1: const Color(0xFFFFD700),
-                  color2: const Color(0xFFFF6B35),
-                  onTap: () => _showMultiplayerOptions(context),
-                ).animate().fadeIn(delay: 400.ms, duration: 600.ms).slideX(begin: 0.2, end: 0),
-              ],
+        child: Stack(
+          children: [
+            // Soft decorative background glow circles (Mesh gradient effect)
+            Positioned(
+              top: -100,
+              right: -100,
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFFD500F9).withValues(alpha: 0.08),
+                ),
+              ).animate(onPlay: (c) => c.repeat(reverse: true))
+               .scale(begin: const Offset(1, 1), end: const Offset(1.2, 1.2), duration: 6.seconds)
+               .blur(begin: const Offset(60, 60), end: const Offset(90, 90)),
             ),
-          ),
+            Positioned(
+              bottom: -120,
+              left: -120,
+              child: Container(
+                width: 320,
+                height: 320,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF00E5FF).withValues(alpha: 0.08),
+                ),
+              ).animate(onPlay: (c) => c.repeat(reverse: true))
+               .scale(begin: const Offset(1, 1), end: const Offset(1.15, 1.15), duration: 7.seconds)
+               .blur(begin: const Offset(70, 70), end: const Offset(100, 100)),
+            ),
+            
+            SafeArea(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'OYUN MODU SEÇİN',
+                      style: AppTheme.titleStyle.copyWith(fontSize: 32),
+                    ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2, end: 0),
+                    
+                    const SizedBox(height: 60),
+                    
+                    // Single Device Mode
+                    _ModeButton(
+                      title: 'TEK CİHAZ',
+                      subtitle: 'Aynı cihaz üzerinden sırayla oynayın',
+                      icon: Icons.smartphone_rounded,
+                      color1: const Color(0xFF00FF87),
+                      color2: const Color(0xFF00D084),
+                      onTap: () => context.go('/team-setup'),
+                    ).animate().fadeIn(delay: 200.ms, duration: 600.ms).slideX(begin: -0.2, end: 0),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Multi-Device Mode
+                    _ModeButton(
+                      title: 'ÇOKLU CİHAZ',
+                      subtitle: 'Herkes kendi cihazından katılsın',
+                      icon: Icons.devices_rounded,
+                      color1: const Color(0xFFFFD700),
+                      color2: const Color(0xFFFF6B35),
+                      onTap: () => _showMultiplayerOptions(context),
+                    ).animate().fadeIn(delay: 400.ms, duration: 600.ms).slideX(begin: 0.2, end: 0),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -65,46 +100,53 @@ class GameModeSelectionScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1A1A2E),
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.white24,
-                borderRadius: BorderRadius.circular(2),
-              ),
+      barrierColor: Colors.black.withValues(alpha: 0.6),
+      builder: (context) => ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.65),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
             ),
-            const SizedBox(height: 32),
-            _OptionButton(
-              title: 'YÖNETİCİ GİRİŞİ',
-              icon: Icons.admin_panel_settings_rounded,
-              color: const Color(0xFFFF6B35),
-              onTap: () {
-                context.pop();
-                context.go('/admin');
-              },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                _OptionButton(
+                  title: 'YÖNETİCİ GİRİŞİ',
+                  icon: Icons.admin_panel_settings_rounded,
+                  color: const Color(0xFFFF6B35),
+                  onTap: () {
+                    context.pop();
+                    context.go('/admin');
+                  },
+                ),
+                const SizedBox(height: 16),
+                _OptionButton(
+                  title: 'OYUNCU GİRİŞİ',
+                  icon: Icons.videogame_asset_rounded,
+                  color: const Color(0xFF00FF87),
+                  onTap: () {
+                    context.pop();
+                    context.go('/player');
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
             ),
-            const SizedBox(height: 16),
-            _OptionButton(
-              title: 'OYUNCU GİRİŞİ',
-              icon: Icons.videogame_asset_rounded,
-              color: const Color(0xFF00FF88),
-              onTap: () {
-                context.pop();
-                context.go('/player');
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
+          ),
         ),
       ),
     );
@@ -133,18 +175,18 @@ class _ModeButton extends StatelessWidget {
     return Container(
       width: 320,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [color1, color2],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: color1.withValues(alpha: 0.25),
+          width: 1.2,
+        ),
         boxShadow: [
           BoxShadow(
-            color: color1.withValues(alpha: 0.3),
-            blurRadius: 20,
+            color: color1.withValues(alpha: 0.15),
+            blurRadius: 24,
             spreadRadius: 0,
-            offset: const Offset(0, 8),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -160,10 +202,13 @@ class _ModeButton extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: color1.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
+                    border: Border.all(
+                      color: color1.withValues(alpha: 0.25),
+                    ),
                   ),
-                  child: Icon(icon, color: Colors.white, size: 32),
+                  child: Icon(icon, color: color1, size: 32),
                 ),
                 const SizedBox(width: 20),
                 Expanded(
@@ -182,7 +227,7 @@ class _ModeButton extends StatelessWidget {
                       Text(
                         subtitle,
                         style: const TextStyle(
-                          color: Colors.white70,
+                          color: Colors.white60,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
@@ -190,7 +235,7 @@ class _ModeButton extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white54, size: 20),
+                Icon(Icons.arrow_forward_ios_rounded, color: color1.withValues(alpha: 0.6), size: 20),
               ],
             ),
           ),
@@ -215,33 +260,38 @@ class _OptionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white.withValues(alpha: 0.05),
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-          decoration: BoxDecoration(
-            border: Border.all(color: color.withValues(alpha: 0.3)),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: color),
-              const SizedBox(width: 16),
-              Text(
-                title,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
+        border: Border.all(
+          color: color.withValues(alpha: 0.25),
+          width: 1.2,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            child: Row(
+              children: [
+                Icon(icon, color: color),
+                const SizedBox(width: 16),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
                 ),
-              ),
-              const Spacer(),
-              Icon(Icons.chevron_right_rounded, color: color),
-            ],
+                const Spacer(),
+                Icon(Icons.chevron_right_rounded, color: color),
+              ],
+            ),
           ),
         ),
       ),

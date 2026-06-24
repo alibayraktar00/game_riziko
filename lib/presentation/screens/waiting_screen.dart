@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/app_theme.dart';
 
 class WaitingScreen extends StatefulWidget {
@@ -69,13 +71,17 @@ class _WaitingScreenState extends State<WaitingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
-          'BEKLEME EKRANI',
-          style: GoogleFonts.orbitron(
+          'BEKLEME ODASI',
+          style: GoogleFonts.outfit(
             fontSize: 20,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.5,
           ),
         ),
         leading: IconButton(
@@ -83,126 +89,246 @@ class _WaitingScreenState extends State<WaitingScreen> {
           onPressed: () {
             showDialog(
               context: context,
-              builder: (ctx) => AlertDialog(
-                title: const Text('Odadan Çık?'),
-                content: const Text('Bekleme odasından çıkmak istediğinize emin misiniz?'),
-                actions: [
-                  TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('HAYIR')),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      context.go('/mode-selection');
-                    },
-                    child: const Text('EVET'),
+              builder: (ctx) => BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                child: AlertDialog(
+                  backgroundColor: const Color(0xFF0F1322).withValues(alpha: 0.95),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
                   ),
-                ],
+                  title: Text(
+                    'Odadan Çıkılsın mı?',
+                    style: GoogleFonts.outfit(
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                  content: Text(
+                    'Bekleme odasından çıkmak istediğinize emin misiniz?',
+                    style: GoogleFonts.outfit(
+                      color: Colors.white.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: Text(
+                        'HAYIR',
+                        style: GoogleFonts.outfit(
+                          fontWeight: FontWeight.w700,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        context.go('/mode-selection');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFF3B30),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'EVET',
+                        style: GoogleFonts.outfit(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           },
         ),
-        backgroundColor: const Color(0xFF1A1A2E),
-        foregroundColor: const Color(0xFFFFD700),
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Container(
         decoration: AppTheme.neonGradient,
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (!_gameStarted) ...[
-                SizedBox(
-                  width: 200,
-                  height: 200,
-                  child: Lottie.asset(
-                    'assets/animations/loading.json',
-                    width: 200,
-                    height: 200,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => const Center(
-                      child: CircularProgressIndicator(color: Color(0xFFFFD700)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (!_gameStarted) ...[
+                  // Waiting Lottie Animation with Glow
+                  Container(
+                    width: 220,
+                    height: 220,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: colorScheme.primary.withValues(alpha: 0.05),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.primary.withValues(alpha: 0.1),
+                          blurRadius: 40,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: Lottie.asset(
+                        'assets/animations/loading.json',
+                        width: 220,
+                        height: 220,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Center(
+                          child: CircularProgressIndicator(color: colorScheme.primary),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  'Yönetici oyunu başlatmayı bekliyor...',
-                  style: GoogleFonts.orbitron(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFFFFD700),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Oyun Kodu: ${widget.gameCode}',
-                  style: GoogleFonts.orbitron(
-                    fontSize: 18,
-                    color: const Color(0xFFF1F5F9),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Katılan Oyuncular: $_playerCount',
-                  style: GoogleFonts.orbitron(
-                    fontSize: 16,
-                    color: const Color(0xFFF1F5F9),
-                  ),
-                ),
-              ] else ...[
-                // Game Started Animation
-                Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF00FF88), Color(0xFF00D084)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                  const SizedBox(height: 48),
+                  
+                  // Waiting Info Card (Glassmorphic)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(28),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(32),
+                        decoration: AppTheme.cardGradient,
+                        child: Column(
+                          children: [
+                            Text(
+                              'Yönetici oyunu başlatmayı bekliyor...',
+                              style: GoogleFonts.outfit(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                                color: colorScheme.primary,
+                                height: 1.3,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 24),
+                            Divider(color: Colors.white.withValues(alpha: 0.08)),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Oyun Kodu:',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white.withValues(alpha: 0.5),
+                                  ),
+                                ),
+                                Text(
+                                  widget.gameCode,
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                    letterSpacing: 2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Katılan Oyuncular:',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white.withValues(alpha: 0.5),
+                                  ),
+                                ),
+                                Text(
+                                  '$_playerCount',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                    color: colorScheme.secondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
+                  ),
+                ] else ...[
+                  // Game Started Animation (Glassmorphic)
+                  ClipRRect(
                     borderRadius: BorderRadius.circular(100),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF00FF88).withValues(alpha: 0.4),
-                        blurRadius: 30,
-                        spreadRadius: 0,
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        width: 200,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF00FF87), Color(0xFF60EFFF)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(100),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF00FF87).withValues(alpha: 0.4),
+                              blurRadius: 30,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.3),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.play_arrow_rounded,
+                          size: 96,
+                          color: Color(0xFF070913),
+                        ),
                       ),
-                    ],
+                    ),
+                  ).animate().scale(
+                    begin: const Offset(0.5, 0.5),
+                    end: const Offset(1.0, 1.0),
+                    duration: 500.ms,
+                    curve: Curves.elasticOut,
                   ),
-                  child: const Icon(
-                    Icons.play_arrow,
-                    size: 80,
-                    color: Colors.white,
+                  const SizedBox(height: 48),
+                  Text(
+                    'OYUN BAŞLIYOR!',
+                    style: GoogleFonts.outfit(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      color: const Color(0xFF00FF87),
+                      letterSpacing: 2,
+                      shadows: [
+                        BoxShadow(
+                          color: const Color(0xFF00FF87).withValues(alpha: 0.4),
+                          blurRadius: 20,
+                        ),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
+                  ).animate().scale(duration: 400.ms).then().shimmer(duration: 2.seconds),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Oyuna yönlendiriliyorsunuz...',
+                    style: GoogleFonts.outfit(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white.withValues(alpha: 0.6),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  'OYUN BAŞLIYOR!',
-                  style: GoogleFonts.orbitron(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF00FF88),
-                    shadows: [
-                      const Shadow(
-                        color:  Color(0xFF00FF88),
-                        blurRadius: 20,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Oyuna yönlendiriliyorsunuz...',
-                  style: GoogleFonts.orbitron(
-                    fontSize: 16,
-                    color: const Color(0xFFF1F5F9),
-                  ),
-                ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

@@ -56,9 +56,18 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
 
   void _initQuestion() {
     final availableQuestions = ref.read(gameProvider).availableQuestions;
-    final questions = availableQuestions.where(
-      (q) => q.category == widget.category && q.difficulty == widget.difficulty,
-    ).toList();
+    
+    debugPrint("QuestionScreen init: category='${widget.category}', difficulty=${widget.difficulty}");
+    debugPrint("availableQuestions count: ${availableQuestions.length}");
+    for (var q in availableQuestions) {
+      debugPrint("Available question: id=${q.id}, category='${q.category}', difficulty=${q.difficulty}");
+    }
+
+    final questions = availableQuestions.where((q) {
+      final matchCategory = q.category.trim().toLowerCase() == widget.category.trim().toLowerCase();
+      final matchDifficulty = q.difficulty == widget.difficulty;
+      return matchCategory && matchDifficulty;
+    }).toList();
 
     if (questions.isNotEmpty) {
       setState(() {
@@ -66,6 +75,7 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
       });
       _startTimer();
     } else {
+      debugPrint("Matching question not found! Popping screen immediately...");
       context.pop();
     }
   }

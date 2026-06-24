@@ -81,15 +81,19 @@ class AppTheme {
   static ThemeData get darkTheme => getTheme(RizikoTheme.neon);
 
   static BoxDecoration get neonGradient => const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF00E5FF), Color(0xFFD500F9)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        gradient: RadialGradient(
+          center: Alignment.topLeft,
+          radius: 1.5,
+          colors: [
+            Color(0xFF0F1322), // Deep dark blue-black
+            Color(0xFF070912), // Near pitch-black
+          ],
+          stops: [0.0, 1.0],
         ),
       );
 
   static BoxShadow get neonShadow => BoxShadow(
-        color: const Color(0xFF00E5FF).withValues(alpha: 0.4),
+        color: const Color(0xFF00E5FF).withValues(alpha: 0.15),
         blurRadius: 20,
         spreadRadius: 0,
       );
@@ -99,8 +103,8 @@ class AppTheme {
         fontWeight: FontWeight.w900,
         color: Colors.white,
         shadows: [
-          const Shadow(color: Color(0xFF00E5FF), blurRadius: 20),
-          const Shadow(color: Color(0xFFD500F9), blurRadius: 30),
+          const Shadow(color: Color(0xFF00E5FF), blurRadius: 15),
+          const Shadow(color: Color(0xFFD500F9), blurRadius: 25),
         ],
       );
 
@@ -111,8 +115,35 @@ class AppTheme {
       );
 
   static BoxDecoration get cardGradient => BoxDecoration(
-        color: const Color(0xFF131B2F),
+        color: Colors.white.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 1.2),
       );
+
+  static BoxDecoration get premiumDarkGradient => const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFF0B0F19), // Deep dark blue-black
+            Color(0xFF060913), // Near pitch-black
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      );
+
+  static BoxDecoration darkRadialGradient(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return BoxDecoration(
+      gradient: RadialGradient(
+        center: Alignment.topLeft,
+        radius: 1.5,
+        colors: [
+          colorScheme.primary.withValues(alpha: 0.12),
+          const Color(0xFF0F1322),
+          const Color(0xFF070912),
+        ],
+        stops: const [0.0, 0.5, 1.0],
+      ),
+    );
+  }
 }

@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:go_router/go_router.dart';
@@ -17,21 +18,24 @@ class _QRScanScreenState extends State<QRScanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
           'QR KODU TARA',
-          style: GoogleFonts.orbitron(
+          style: GoogleFonts.outfit(
             fontSize: 20,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.5,
           ),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.go('/mode-selection'),
         ),
-        backgroundColor: const Color(0xFF1A1A2E),
-        foregroundColor: const Color(0xFFFFD700),
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Container(
@@ -43,19 +47,23 @@ class _QRScanScreenState extends State<QRScanScreen> {
               Expanded(
                 flex: 3,
                 child: Container(
-                  margin: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: const Color(0xFFFFD700).withValues(alpha: 0.3),
+                      color: colorScheme.primary.withValues(alpha: 0.4),
                       width: 2,
                     ),
                     boxShadow: [
-                      AppTheme.neonShadow,
+                      BoxShadow(
+                        color: colorScheme.primary.withValues(alpha: 0.25),
+                        blurRadius: 30,
+                        spreadRadius: 2,
+                      ),
                     ],
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(22),
                     child: MobileScanner(
                       onDetect: _onBarcodeDetect,
                       controller: MobileScannerController(
@@ -71,104 +79,131 @@ class _QRScanScreenState extends State<QRScanScreen> {
               // Status Section
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                 child: Column(
                   children: [
                     if (_scannedCode != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF00FF88), Color(0xFF00D084)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                      // Scanned Success Glassmorphic Container
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                          child: Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.03),
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: const Color(0xFF00FF87).withValues(alpha: 0.35),
+                                width: 1.5,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF00FF87).withValues(alpha: 0.1),
+                                  blurRadius: 30,
+                                  spreadRadius: 0,
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF00FF87),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.check_circle_rounded,
+                                    size: 36,
+                                    color: Color(0xFF070913),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'QR KODU OKUNDU!',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                    color: const Color(0xFF00FF87),
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Kod: $_scannedCode',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 52,
+                                  child: ElevatedButton(
+                                    onPressed: () => _proceedToNickname(),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF00FF87),
+                                      foregroundColor: const Color(0xFF070913),
+                                      elevation: 8,
+                                      shadowColor: const Color(0xFF00FF87).withValues(alpha: 0.4),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'DEVAM ET',
+                                      style: GoogleFonts.outfit(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            AppTheme.neonShadow,
-                            BoxShadow(
-                              color: const Color(0xFF00FF88).withValues(alpha: 0.4),
-                              blurRadius: 20,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            const Icon(
-                              Icons.check_circle,
-                              size: 48,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(height: 12),
-                            const Text(
-                              'QR KODU OKUNDU!',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Kod: $_scannedCode',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () => _proceedToNickname(),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: const Color(0xFF00FF88),
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: Text(
-                                  'DEVAM ET',
-                                  style: GoogleFonts.orbitron(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
                         ),
                       ),
                     ] else ...[
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1A1A2E).withValues(alpha: 0.8),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: const Color(0xFFFFD700).withValues(alpha: 0.3),
-                            width: 1,
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            const Icon(
-                              Icons.qr_code_scanner,
-                              size: 48,
-                              color: Color(0xFFFFD700),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              'QR kodu kameraya gösterin',
-                              style: GoogleFonts.orbitron(
-                                fontSize: 16,
-                                color: const Color(0xFFFFD700),
+                      // Waiting for Scan Glassmorphic Container
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                          child: Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.02),
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: colorScheme.primary.withValues(alpha: 0.2),
+                                width: 1.2,
                               ),
                             ),
-                          ],
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.qr_code_scanner_rounded,
+                                  size: 40,
+                                  color: colorScheme.primary,
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'QR Kodu Kameraya Gösterin',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white.withValues(alpha: 0.7),
+                                    letterSpacing: 1.0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ],
