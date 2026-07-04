@@ -2,6 +2,8 @@
     <!-- Camera permission for QR code scanning -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <!-- Required by speech_to_text for voice-answer input -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     
     <application
         android:label="riziko"

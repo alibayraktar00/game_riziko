@@ -1,44 +1,29 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart' show kIsWeb, TargetPlatform, defaultTargetPlatform;
 
-// Default Firebase configuration
+// Default Firebase configuration (Android values, project riziko-72c8f).
+// iOS and web are not yet registered with this Firebase project — running
+// on those platforms will need `flutterfire configure` to add them.
 const FirebaseOptions firebaseOptions = FirebaseOptions(
-  apiKey: 'AIzaSyDummyKeyForDevelopment',
-  appId: '1:123456789:android:abcdef123456789',
-  messagingSenderId: '123456789',
-  projectId: 'riziko-development',
-  storageBucket: 'riziko-development.appspot.com',
+  apiKey: 'AIzaSyBlLE2HXMzt3vKJ_Y0xmIRDgfmByUFrmhc',
+  appId: '1:597482279851:android:d306df64a79c8d34d5f8ee',
+  messagingSenderId: '597482279851',
+  projectId: 'riziko-72c8f',
+  storageBucket: 'riziko-72c8f.firebasestorage.app',
+  databaseURL: 'https://riziko-72c8f-default-rtdb.europe-west1.firebasedatabase.app',
 );
 
 // Platform-specific configuration
 FirebaseOptions get currentPlatform {
   if (kIsWeb) {
-    return const FirebaseOptions(
-      apiKey: 'AIzaSyDummyKeyForDevelopment',
-      appId: '1:123456789:web:abcdef123456789',
-      projectId: 'riziko-development',
-      messagingSenderId: '123456789',
-      storageBucket: 'riziko-development.appspot.com',
-    );
+    return firebaseOptions;
   }
-  
+
   switch (defaultTargetPlatform) {
     case TargetPlatform.android:
-      return const FirebaseOptions(
-        apiKey: 'AIzaSyDummyKeyForDevelopment',
-        appId: '1:123456789:android:abcdef123456789',
-        messagingSenderId: '123456789',
-        projectId: 'riziko-development',
-        storageBucket: 'riziko-development.appspot.com',
-      );
+      return firebaseOptions;
     case TargetPlatform.iOS:
-      return const FirebaseOptions(
-        apiKey: 'AIzaSyDummyKeyForDevelopment',
-        appId: '1:123456789:ios:abcdef123456789',
-        messagingSenderId: '123456789',
-        projectId: 'riziko-development',
-        storageBucket: 'riziko-development.appspot.com',
-      );
+      return firebaseOptions;
     default:
       return firebaseOptions;
   }
