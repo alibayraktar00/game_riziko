@@ -1,13 +1,15 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 import '../../core/theme/app_theme.dart';
 import '../providers/multiplayer_provider.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/riziko_scaffold.dart';
 
 class AdminScreen extends ConsumerStatefulWidget {
   const AdminScreen({super.key});
@@ -91,43 +93,27 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     
     if (_gameCode == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-    
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Text(
-          'YÖNETİCİ PANELİ',
-          style: GoogleFonts.outfit(
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.5,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.go('/mode-selection'),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Container(
+      return Container(
         decoration: AppTheme.neonGradient,
-        child: SafeArea(
-          child: SingleChildScrollView(
+        child: Center(child: CircularProgressIndicator(color: colorScheme.primary)),
+      );
+    }
+
+    return RizikoScaffold(
+      title: 'YÖNETİCİ PANELİ',
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        onPressed: () => context.go('/mode-selection'),
+      ),
+      body: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               children: [
-                // Game Code Section (Glassmorphic)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(28),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
-                      decoration: AppTheme.cardGradient,
+                // Game Code Section
+                GlassCard(
+                      radius: AppRadius.hero,
+                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl + 4, horizontal: AppSpacing.lg),
                       child: Column(
                         children: [
                           Text(
@@ -188,19 +174,14 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                           ),
                         ],
                       ),
-                    ),
-                  ),
                 ),
-                
-                const SizedBox(height: 24),
-                
-                // Players Section (Glassmorphic)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(28),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                    child: Container(
-                      decoration: AppTheme.cardGradient,
+
+                const SizedBox(height: AppSpacing.lg),
+
+                // Players Section
+                GlassCard(
+                      radius: AppRadius.hero,
+                      padding: EdgeInsets.zero,
                       child: Column(
                         children: [
                           Padding(
@@ -248,15 +229,23 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                           // Players List
                           _players.isEmpty
                               ? Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+                                  padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
                                   child: Center(
                                     child: Column(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        Icon(
-                                          Icons.person_off_rounded,
-                                          size: 56,
-                                          color: Colors.white.withValues(alpha: 0.2),
+                                        SizedBox(
+                                          width: 110,
+                                          height: 110,
+                                          child: Lottie.asset(
+                                            'assets/animations/loading.json',
+                                            fit: BoxFit.contain,
+                                            errorBuilder: (context, error, stackTrace) => Icon(
+                                              Icons.person_off_rounded,
+                                              size: 56,
+                                              color: Colors.white.withValues(alpha: 0.2),
+                                            ),
+                                          ),
                                         ),
                                         const SizedBox(height: 16),
                                         Text(
@@ -335,11 +324,9 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                                 ),
                         ],
                       ),
-                    ),
-                  ),
                 ),
-                
-                const SizedBox(height: 32),
+
+                const SizedBox(height: AppSpacing.xl),
                 
                 // Start Game Button
                 Container(
@@ -432,8 +419,6 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
               ],
             ),
           ),
-        ),
-      ),
     );
   }
 

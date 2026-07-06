@@ -8,6 +8,7 @@ class QuestionModel extends Question {
     required super.translations,
     required super.answers,
     required super.keywords,
+    super.distractors,
   });
 
   factory QuestionModel.fromJson(Map<String, dynamic> json, String id) {
@@ -29,6 +30,10 @@ class QuestionModel extends Question {
       translations: translations,
       answers: List<String>.from(json['answers'] ?? []),
       keywords: List<String>.from(json['keywords'] ?? []),
+      distractors: (json['distractors'] as Map?)?.map(
+            (key, value) => MapEntry(key as String, List<String>.from(value as List)),
+          ) ??
+          const {},
     );
   }
 
@@ -40,6 +45,7 @@ class QuestionModel extends Question {
       'translations': translations,
       'answers': answers,
       'keywords': keywords,
+      'distractors': distractors,
     };
   }
 }

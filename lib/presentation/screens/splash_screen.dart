@@ -1,8 +1,9 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../core/theme/app_theme.dart';
+import '../widgets/glass_card.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -79,20 +80,9 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       body: Stack(
         children: [
-          // Custom Background Image from assets
-          Positioned.fill(
-            child: Image.asset(
-              'assets/backgrand/5ae55b86-fcc8-4858-b212-704b55ccc3d1.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-          // Dark overlay for readability
-          Positioned.fill(
-            child: Container(
-              color: const Color(0xFF070913).withValues(alpha: 0.55),
-            ),
-          ),
-          
+          // Shared background treatment (same asset+overlay every screen uses)
+          Positioned.fill(child: Container(decoration: AppTheme.neonGradient)),
+
           // Soft decorative background glow circles (Mesh gradient effect)
           Positioned(
             top: -100,
@@ -145,77 +135,31 @@ class _SplashScreenState extends State<SplashScreen>
                               child: child!,
                             );
                           },
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(32),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 40),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.03),
-                                  borderRadius: BorderRadius.circular(32),
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.08),
-                                    width: 1.5,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFF00E5FF).withValues(alpha: 0.15),
-                                      blurRadius: 30,
-                                      spreadRadius: -10,
-                                      offset: const Offset(0, 5),
-                                    ),
-                                  ],
+                          child: GlassCard(
+                            radius: AppRadius.hero,
+                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxl, horizontal: AppSpacing.xl + 8),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // Premium logo image
+                                Image.asset(
+                                  'assets/images/logo.png',
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.contain,
+                                ).animate(onPlay: (c) => c.repeat(reverse: true))
+                                 .scale(begin: const Offset(1, 1), end: const Offset(1.05, 1.05), duration: 2.seconds, curve: Curves.easeInOut),
+                                const SizedBox(height: AppSpacing.lg),
+                                Text(
+                                  'RİZİKO',
+                                  style: AppTheme.titleStyle.copyWith(fontSize: 48, letterSpacing: 12),
                                 ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // Glow Icon
-                                    const Icon(
-                                      Icons.quiz_rounded,
-                                      size: 80,
-                                      color: Colors.white,
-                                      shadows: [
-                                        Shadow(
-                                          color: Color(0xFF00E5FF),
-                                          blurRadius: 20,
-                                          offset: Offset(0, 2),
-                                        ),
-                                        Shadow(
-                                          color: Color(0xFFD500F9),
-                                          blurRadius: 30,
-                                          offset: Offset(0, 4),
-                                        ),
-                                      ],
-                                    ).animate(onPlay: (c) => c.repeat(reverse: true))
-                                     .scale(begin: const Offset(1, 1), end: const Offset(1.05, 1.05), duration: 2.seconds, curve: Curves.easeInOut),
-                                    const SizedBox(height: 24),
-                                    Text(
-                                      'RİZİKO',
-                                      style: GoogleFonts.outfit(
-                                        fontSize: 48,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white,
-                                        letterSpacing: 12,
-                                        shadows: [
-                                          const Shadow(color: Color(0xFF00E5FF), blurRadius: 20),
-                                          const Shadow(color: Color(0xFFD500F9), blurRadius: 30),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      'Çok Oyunculu Quiz Deneyimi',
-                                      style: GoogleFonts.outfit(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white.withValues(alpha: 0.5),
-                                        letterSpacing: 1.5,
-                                      ),
-                                    ),
-                                  ],
+                                const SizedBox(height: AppSpacing.xs),
+                                Text(
+                                  'Çok Oyunculu Quiz Deneyimi',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(letterSpacing: 1.5),
                                 ),
-                              ),
+                              ],
                             ),
                           ),
                         ),
@@ -244,7 +188,7 @@ class _SplashScreenState extends State<SplashScreen>
                       );
                     },
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 48.0),
+                      padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
                       child: Container(
                         width: 280,
                         height: 60,
@@ -254,7 +198,7 @@ class _SplashScreenState extends State<SplashScreen>
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(AppRadius.button),
                           boxShadow: [
                             BoxShadow(
                               color: const Color(0xFF00FF87).withValues(alpha: 0.35),

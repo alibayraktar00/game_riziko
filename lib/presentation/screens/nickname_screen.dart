@@ -1,11 +1,12 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:uuid/uuid.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/riziko_scaffold.dart';
 
 class NicknameScreen extends StatefulWidget {
   final String gameCode;
@@ -102,115 +103,83 @@ class _NicknameScreenState extends State<NicknameScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Text(
-          'TAKMA AD SEÇİN',
-          style: GoogleFonts.outfit(
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.5,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.go('/player'),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+    final textTheme = Theme.of(context).textTheme;
+
+    return RizikoScaffold(
+      title: 'TAKMA AD SEÇİN',
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        onPressed: () => context.go('/player'),
       ),
-      body: Container(
-        decoration: AppTheme.neonGradient,
-        child: Center(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Game Code Display Card (Glassmorphic)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                    child: Container(
-                      width: 320,
-                      padding: const EdgeInsets.all(20),
-                      decoration: AppTheme.cardGradient,
-                      child: Column(
-                        children: [
-                          Text(
-                            'OYUN KODU',
-                            style: GoogleFonts.outfit(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white.withValues(alpha: 0.5),
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            widget.gameCode,
-                            style: GoogleFonts.outfit(
-                              fontSize: 26,
-                              fontWeight: FontWeight.w900,
-                              color: colorScheme.primary,
-                              letterSpacing: 4,
-                              shadows: [
-                                Shadow(
-                                  color: colorScheme.primary.withValues(alpha: 0.4),
-                                  blurRadius: 10,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+      body: Center(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xl),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Game Code Display Card
+              GlassCard(
+                padding: const EdgeInsets.all(AppSpacing.md + 4),
+                child: SizedBox(
+                  width: 320,
+                  child: Column(
+                    children: [
+                      Text(
+                        'OYUN KODU',
+                        style: textTheme.bodySmall?.copyWith(letterSpacing: 1.5),
                       ),
-                    ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        widget.gameCode,
+                        style: textTheme.headlineMedium?.copyWith(
+                          color: colorScheme.primary,
+                          letterSpacing: 4,
+                          shadows: [
+                            Shadow(
+                              color: colorScheme.primary.withValues(alpha: 0.4),
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                
-                const SizedBox(height: 24),
-                
-                // Nickname Input Card (Glassmorphic)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(28),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                    child: Container(
-                      width: 320,
-                      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-                      decoration: AppTheme.cardGradient,
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: colorScheme.primary.withValues(alpha: 0.1),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: colorScheme.primary.withValues(alpha: 0.25),
-                              ),
-                            ),
-                            child: Icon(
-                              Icons.person_rounded,
-                              size: 48,
-                              color: colorScheme.primary,
-                            ),
+              ),
+
+              const SizedBox(height: AppSpacing.lg),
+
+              // Nickname Input Card
+              GlassCard(
+                radius: AppRadius.hero,
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl + 8, horizontal: AppSpacing.lg),
+                child: SizedBox(
+                  width: 320,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: colorScheme.primary.withValues(alpha: 0.25),
                           ),
-                          const SizedBox(height: 24),
-                          Text(
-                            'Takma Adınızı Girin',
-                            style: GoogleFonts.outfit(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                              letterSpacing: 1.0,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          TextField(
+                        ),
+                        child: Icon(
+                          Icons.person_rounded,
+                          size: 48,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      Text(
+                        'Takma Adınızı Girin',
+                        style: textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: AppSpacing.md + 4),
+                      TextField(
                             controller: _nicknameController,
                             textAlign: TextAlign.center,
                             style: GoogleFonts.outfit(
@@ -290,12 +259,15 @@ class _NicknameScreenState extends State<NicknameScreen> {
                                           ),
                                         ),
                                         const SizedBox(width: 12),
-                                        Text(
-                                          'KATILIYOR...',
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w800,
-                                            letterSpacing: 1.2,
+                                        Flexible(
+                                          child: Text(
+                                            'KATILIYOR...',
+                                            overflow: TextOverflow.ellipsis,
+                                            style: GoogleFonts.outfit(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: 1.2,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -314,12 +286,10 @@ class _NicknameScreenState extends State<NicknameScreen> {
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      ),
-    );
+      );
   }
 }

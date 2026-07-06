@@ -6,10 +6,13 @@ import 'package:go_router/go_router.dart';
 import 'package:confetti/confetti.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_provider.dart';
+import '../../core/theme/app_theme.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import '../../domain/entities/match_result.dart';
 import '../../services/history_service.dart';
 import '../providers/game_provider.dart';
+import '../widgets/ranked_list_tile.dart';
+import '../widgets/riziko_scaffold.dart';
 
 class ScoreboardScreen extends ConsumerStatefulWidget {
   const ScoreboardScreen({super.key});
@@ -70,87 +73,57 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
     final locale = ref.watch(localeProvider);
     final t = AppLocalizations(locale);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t.translate('final_scores'), style: const TextStyle(letterSpacing: 2)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.go('/category-selection'),
-        ),
+    return RizikoScaffold(
+      title: t.translate('final_scores'),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        onPressed: () => context.go('/category-selection'),
       ),
       body: Stack(
-        children: [
+          children: [
           Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).colorScheme.surface,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.amber.withValues(alpha: 0.5),
-                        blurRadius: 30,
-                        spreadRadius: 5,
-                      ),
+                SizedBox(
+                  width: 160,
+                  height: 160,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      const CustomPaint(
+                        size: Size(160, 160),
+                        painter: _SparklePainter(color: Colors.amber),
+                      ).animate(onPlay: (c) => c.repeat()).rotate(duration: 10.seconds),
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Theme.of(context).colorScheme.surface,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.amber.withValues(alpha: 0.5),
+                              blurRadius: 30,
+                              spreadRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.emoji_events_rounded, size: 80, color: Colors.amber),
+                      ).animate(onPlay: (c) => c.repeat(reverse: true)).scaleXY(begin: 1.0, end: 1.1, duration: 1.seconds),
                     ],
                   ),
-                  child: const Icon(Icons.emoji_events_rounded, size: 80, color: Colors.amber),
-                ).animate(onPlay: (c) => c.repeat(reverse: true)).scaleXY(begin: 1.0, end: 1.1, duration: 1.seconds),
+                ),
                 const SizedBox(height: 32),
                 Expanded(
                   child: ListView.builder(
                     itemCount: teams.length,
                     itemBuilder: (context, index) {
                       final team = teams[index];
-                      final isWinner = index == 0;
-                      
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        decoration: BoxDecoration(
-                          color: isWinner ? Colors.amber.withValues(alpha: 0.15) : Theme.of(context).colorScheme.surface,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isWinner ? Colors.amber : Colors.white.withValues(alpha: 0.05),
-                            width: isWinner ? 2 : 1,
-                          ),
-                          boxShadow: isWinner
-                              ? [
-                                  BoxShadow(
-                                    color: Colors.amber.withValues(alpha: 0.2),
-                                    blurRadius: 15,
-                                    offset: const Offset(0, 4),
-                                  )
-                                ]
-                              : [],
-                        ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                          leading: CircleAvatar(
-                            backgroundColor: isWinner ? Colors.amber : Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                            foregroundColor: isWinner ? Colors.black : Theme.of(context).colorScheme.primary,
-                            child: isWinner ? const Icon(Icons.star) : Text('${index + 1}'),
-                          ),
-                          title: Text(
-                            team.name.toUpperCase(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                              letterSpacing: 1,
-                              color: isWinner ? Colors.amber : Colors.white,
-                            ),
-                          ),
-                          trailing: Text(
-                            '${team.score} PTS',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 22,
-                              color: isWinner ? Colors.amber : Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ),
+
+                      return RankedListTile(
+                        rank: index + 1,
+                        name: team.name.toUpperCase(),
+                        score: '${team.score} PTS',
                       ).animate().fadeIn(delay: (index * 200).ms).slideX(begin: 0.5, end: 0, curve: Curves.easeOutBack);
                     },
                   ),
@@ -206,4 +179,49 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
       ),
     );
   }
+}
+
+/// A ring of small diamond sparkles around the trophy — a decorative,
+/// code-generated accent so the winner circle doesn't rely on a static glow.
+class _SparklePainter extends CustomPainter {
+  final Color color;
+
+  const _SparklePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 4;
+    final paint = Paint()
+      ..color = color.withValues(alpha: 0.7)
+      ..style = PaintingStyle.fill;
+
+    const sparkleCount = 8;
+    for (int i = 0; i < sparkleCount; i++) {
+      final angle = (2 * pi / sparkleCount) * i;
+      final sparkleSize = i.isEven ? 3.5 : 2.0;
+      final position = Offset(
+        center.dx + radius * cos(angle),
+        center.dy + radius * sin(angle),
+      );
+      _drawSparkle(canvas, position, sparkleSize, paint);
+    }
+  }
+
+  void _drawSparkle(Canvas canvas, Offset center, double size, Paint paint) {
+    final path = Path()
+      ..moveTo(center.dx, center.dy - size * 2)
+      ..lineTo(center.dx + size * 0.6, center.dy - size * 0.6)
+      ..lineTo(center.dx + size * 2, center.dy)
+      ..lineTo(center.dx + size * 0.6, center.dy + size * 0.6)
+      ..lineTo(center.dx, center.dy + size * 2)
+      ..lineTo(center.dx - size * 0.6, center.dy + size * 0.6)
+      ..lineTo(center.dx - size * 2, center.dy)
+      ..lineTo(center.dx - size * 0.6, center.dy - size * 0.6)
+      ..close();
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _SparklePainter oldDelegate) => oldDelegate.color != color;
 }

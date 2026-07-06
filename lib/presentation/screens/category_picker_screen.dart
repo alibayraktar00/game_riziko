@@ -4,8 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_provider.dart';
+import '../../core/theme/app_theme.dart';
 import '../providers/game_provider.dart';
 import '../providers/providers.dart';
+import '../widgets/riziko_scaffold.dart';
+import '../widgets/selectable_card.dart';
+import '../../core/category_icons.dart';
 
 class CategoryPickerScreen extends ConsumerStatefulWidget {
   const CategoryPickerScreen({super.key});
@@ -16,20 +20,21 @@ class CategoryPickerScreen extends ConsumerStatefulWidget {
 
 class _CategoryPickerScreenState extends ConsumerState<CategoryPickerScreen> {
   final Set<String> _selectedCategories = {};
+  static const int _requiredCount = 5;
 
   @override
   Widget build(BuildContext context) {
     final questionsAsync = ref.watch(questionsProvider);
     final locale = ref.watch(localeProvider);
     final t = AppLocalizations(locale);
+    final textTheme = Theme.of(context).textTheme;
+    final isComplete = _selectedCategories.length == _requiredCount;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('KATEGORİ SEÇİMİ'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.go('/team-setup'),
-        ),
+    return RizikoScaffold(
+      title: 'KATEGORİ SEÇİMİ',
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        onPressed: () => context.go('/team-setup'),
       ),
       body: questionsAsync.when(
         data: (questions) {
@@ -39,24 +44,19 @@ class _CategoryPickerScreenState extends ConsumerState<CategoryPickerScreen> {
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.md),
                 child: Column(
                   children: [
                     Text(
-                      '5 KATEGORİ SEÇİN',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 2,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                      '$_requiredCount KATEGORİ SEÇİN',
+                      style: textTheme.headlineMedium?.copyWith(letterSpacing: 2),
                     ).animate().fadeIn().slideY(begin: -0.2, end: 0),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Seçilen: ${_selectedCategories.length} / 5',
-                      style: TextStyle(
-                        color: _selectedCategories.length == 5 ? Colors.greenAccent : Colors.white70,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                      'Seçilen: ${_selectedCategories.length} / $_requiredCount',
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: isComplete ? Colors.greenAccent : null,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -64,68 +64,39 @@ class _CategoryPickerScreenState extends ConsumerState<CategoryPickerScreen> {
               ),
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                   itemCount: allCategories.length,
                   itemBuilder: (context, index) {
                     final category = allCategories[index];
                     final isSelected = _selectedCategories.contains(category);
 
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: InkWell(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      child: SelectableCard(
+                        icon: categoryIcon(category),
+                        title: t.translate(category.toLowerCase()).toUpperCase(),
+                        selected: isSelected,
+                        showHud: false,
                         onTap: () {
                           setState(() {
                             if (isSelected) {
                               _selectedCategories.remove(category);
-                            } else if (_selectedCategories.length < 5) {
+                            } else if (_selectedCategories.length < _requiredCount) {
                               _selectedCategories.add(category);
                             }
                           });
                         },
-                        borderRadius: BorderRadius.circular(16),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
-                                : Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isSelected
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Colors.white.withValues(alpha: 0.1),
-                              width: 2,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                t.translate(category.toLowerCase()).toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: isSelected ? Colors.white : Colors.white70,
-                                ),
-                              ),
-                              if (isSelected)
-                                const Icon(Icons.check_circle, color: Colors.greenAccent)
-                              else
-                                const Icon(Icons.circle_outlined, color: Colors.white24),
-                            ],
-                          ),
-                        ),
                       ),
                     ).animate().fadeIn(delay: (index * 50).ms).slideX(begin: 0.1, end: 0);
                   },
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _selectedCategories.length == 5
+                    onPressed: isComplete
                         ? () {
                             ref.read(gameProvider.notifier).startGameWithCategories(
                                   questions,
@@ -134,9 +105,6 @@ class _CategoryPickerScreenState extends ConsumerState<CategoryPickerScreen> {
                             context.go('/category-selection');
                           }
                         : null,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                    ),
                     child: const Text('OYUNU BAŞLAT'),
                   ),
                 ),
@@ -145,7 +113,7 @@ class _CategoryPickerScreenState extends ConsumerState<CategoryPickerScreen> {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Hata: $error')),
+        error: (error, stack) => Center(child: Text('Hata: $error', style: textTheme.bodyMedium)),
       ),
     );
   }

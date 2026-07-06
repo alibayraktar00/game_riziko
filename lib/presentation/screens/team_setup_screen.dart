@@ -7,8 +7,13 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_provider.dart';
 import '../providers/game_provider.dart';
+import '../providers/providers.dart';
 import '../widgets/language_picker_button.dart';
 import '../../core/theme/app_theme.dart';
+import '../../domain/entities/game_session.dart';
+import '../widgets/cyber_hud_painter.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/riziko_scaffold.dart';
 
 class TeamSetupScreen extends ConsumerStatefulWidget {
   const TeamSetupScreen({super.key});
@@ -32,6 +37,9 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
     final t = AppLocalizations(ref.read(localeProvider));
     final teams = ref.read(gameProvider).teams;
     if (teams.length >= 2) {
+      // Yeni oyunda taze (AI üretimli) sorular gelmesi için önceki
+      // önbelleklenmiş soru listesini geçersiz kıl.
+      ref.invalidate(questionsProvider);
       if (mounted) {
         context.go('/category-picker');
       }
@@ -48,37 +56,252 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
     super.dispose();
   }
 
+  Widget _buildQuestionFormatSelector(GameSession gameState, AppLocalizations t, ColorScheme colorScheme) {
+    final isMultipleChoice = gameState.isMultipleChoice;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.08),
+          width: 1.2,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.quiz_outlined, color: colorScheme.primary, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                t.translate('question_format').toUpperCase(),
+                style: GoogleFonts.outfit(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white.withValues(alpha: 0.8),
+                  letterSpacing: 1.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: _buildFormatCard(
+                    title: t.translate('format_classic'),
+                    description: t.translate('classic_desc'),
+                    icon: Icons.keyboard_rounded,
+                    isSelected: !isMultipleChoice,
+                    onTap: () => ref.read(gameProvider.notifier).setMultipleChoice(false),
+                    colorScheme: colorScheme,
+                    bgAssetPath: 'assets/images/classic_btn_bg.png',
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildFormatCard(
+                    title: t.translate('format_multiple_choice'),
+                    description: t.translate('multiple_choice_desc'),
+                    icon: Icons.grid_view_rounded,
+                    isSelected: isMultipleChoice,
+                    onTap: () => ref.read(gameProvider.notifier).setMultipleChoice(true),
+                    colorScheme: colorScheme,
+                    bgAssetPath: 'assets/images/mc_btn_bg.png',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 150.ms).slideY(begin: 0.1, end: 0);
+  }
+
+  Widget _buildFormatCard({
+    required String title,
+    required String description,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required ColorScheme colorScheme,
+    required String bgAssetPath,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedScale(
+        scale: isSelected ? 1.04 : 1.0,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutBack,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: colorScheme.primary.withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      spreadRadius: 1,
+                    ),
+                    BoxShadow(
+                      color: colorScheme.secondary.withValues(alpha: 0.15),
+                      blurRadius: 10,
+                      spreadRadius: -2,
+                    ),
+                  ]
+                : [],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+              child: CustomPaint(
+                painter: CyberHudPainter(
+                  color: isSelected ? colorScheme.primary : Colors.white24,
+                  isSelected: isSelected,
+                  cornerLength: 10,
+                ),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(bgAssetPath),
+                      fit: BoxFit.cover,
+                      opacity: isSelected ? 0.32 : 0.08,
+                      colorFilter: ColorFilter.mode(
+                        Colors.black.withValues(alpha: 0.4),
+                        BlendMode.darken,
+                      ),
+                    ),
+                    gradient: isSelected
+                        ? LinearGradient(
+                            colors: [
+                              colorScheme.primary.withValues(alpha: 0.25),
+                              colorScheme.secondary.withValues(alpha: 0.08),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : LinearGradient(
+                            colors: [
+                              Colors.white.withValues(alpha: 0.05),
+                              Colors.white.withValues(alpha: 0.01),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected
+                          ? colorScheme.primary
+                          : Colors.white.withValues(alpha: 0.12),
+                      width: isSelected ? 2.2 : 1.2,
+                    ),
+                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? colorScheme.primary.withValues(alpha: 0.2)
+                                : Colors.white.withValues(alpha: 0.06),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isSelected
+                                  ? colorScheme.primary.withValues(alpha: 0.3)
+                                  : Colors.white.withValues(alpha: 0.05),
+                              width: 1,
+                            ),
+                          ),
+                          child: Icon(
+                            icon,
+                            color: isSelected ? Colors.white : Colors.white60,
+                            size: 20,
+                          ),
+                        ),
+                        if (isSelected)
+                          Icon(
+                            Icons.check_circle_rounded,
+                            color: colorScheme.primary,
+                            size: 24,
+                            shadows: [
+                              Shadow(
+                                color: colorScheme.primary.withValues(alpha: 0.5),
+                                blurRadius: 8,
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      title,
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: isSelected ? Colors.white : Colors.white70,
+                        letterSpacing: 0.5,
+                        shadows: isSelected
+                            ? [
+                                Shadow(
+                                  color: colorScheme.primary.withValues(alpha: 0.3),
+                                  blurRadius: 8,
+                                ),
+                              ]
+                            : [],
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.outfit(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: isSelected ? Colors.white.withValues(alpha: 0.8) : Colors.white38,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     final gameState = ref.watch(gameProvider);
     final t = AppLocalizations(ref.watch(localeProvider));
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Text(
-          t.translate('setup_teams'),
-          style: GoogleFonts.outfit(
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.5,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.go('/mode-selection'),
-        ),
-        actions: const [
-          LanguagePickerButton(),
-          SizedBox(width: 12),
-        ],
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+    return RizikoScaffold(
+      title: t.translate('setup_teams'),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        onPressed: () => context.go('/mode-selection'),
       ),
-      body: Container(
-        decoration: AppTheme.neonGradient,
-        child: Stack(
+      actions: const [
+        LanguagePickerButton(),
+        SizedBox(width: 12),
+      ],
+      body: Stack(
           children: [
             // Soft decorative background glow circles (Mesh gradient effect)
             Positioned(
@@ -113,7 +336,9 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
             SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-                child: Column(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
                   children: [
                     // Modern Input Row
                     Row(
@@ -201,43 +426,52 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
                     const SizedBox(height: 32),
                     
                     // Teams List
-                    Expanded(
-                      child: gameState.teams.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.group_off_rounded,
-                                    size: 64,
-                                    color: Colors.white.withValues(alpha: 0.15),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    t.translate('no_teams_added'),
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white.withValues(alpha: 0.3),
+                    gameState.teams.isEmpty
+                          ? SizedBox(
+                              height: 180,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: colorScheme.primary.withValues(alpha: 0.05),
+                                        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.15)),
+                                      ),
+                                      child: Icon(
+                                        Icons.group_add_rounded,
+                                        size: 40,
+                                        color: colorScheme.primary.withValues(alpha: 0.4),
+                                      ),
+                                    ).animate(onPlay: (c) => c.repeat(reverse: true))
+                                     .scaleXY(begin: 1.0, end: 1.08, duration: 1200.ms, curve: Curves.easeInOut),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      t.translate('no_teams_added'),
+                                      style: GoogleFonts.outfit(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white.withValues(alpha: 0.3),
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ).animate().fadeIn(duration: 400.ms)
                           : ListView.builder(
-                              physics: const BouncingScrollPhysics(),
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
                               itemCount: gameState.teams.length,
                               itemBuilder: (context, index) {
                                 final team = gameState.teams[index];
                                 return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12.0),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: BackdropFilter(
-                                      filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                                      child: Container(
-                                        decoration: AppTheme.cardGradient,
-                                        child: ListTile(
+                                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                                  child: GlassCard(
+                                    radius: AppRadius.button,
+                                    padding: EdgeInsets.zero,
+                                    child: ListTile(
                                           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                                           leading: Container(
                                             height: 40,
@@ -277,25 +511,24 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
                                             },
                                           ),
                                         ),
-                                      ),
-                                    ),
                                   ),
                                 ).animate().fadeIn().slideX(begin: 0.1, end: 0, delay: (index * 80).ms, duration: 350.ms);
                               },
                             ),
-                    ),
-                    
+
+                    const SizedBox(height: 24),
+                    _buildQuestionFormatSelector(gameState, t, colorScheme),
                     const SizedBox(height: 24),
                     
                     // Modern Continue Button
                     _buildContinueButton(gameState.teams.length >= 2, t, colorScheme),
                   ],
+                  ),
                 ),
               ),
             ),
           ],
         ),
-      ),
     );
   }
 

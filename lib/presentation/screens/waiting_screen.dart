@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:confetti/confetti.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/app_theme.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/riziko_scaffold.dart';
 
 class WaitingScreen extends StatefulWidget {
   final String gameCode;
@@ -25,6 +29,8 @@ class WaitingScreen extends StatefulWidget {
 class _WaitingScreenState extends State<WaitingScreen> {
   late DatabaseReference _gameRef;
   late StreamSubscription<DatabaseEvent> _gameSubscription;
+  late final ConfettiController _confettiController =
+      ConfettiController(duration: const Duration(seconds: 2));
   bool _gameStarted = false;
   int _playerCount = 0;
 
@@ -42,7 +48,8 @@ class _WaitingScreenState extends State<WaitingScreen> {
         setState(() {
           _gameStarted = true;
         });
-        
+        _confettiController.play();
+
         // Navigate to game screen
         Future.delayed(const Duration(milliseconds: 500), () {
           if (mounted) {
@@ -66,6 +73,7 @@ class _WaitingScreenState extends State<WaitingScreen> {
   @override
   void dispose() {
     _gameSubscription.cancel();
+    _confettiController.dispose();
     super.dispose();
   }
 
@@ -73,18 +81,9 @@ class _WaitingScreenState extends State<WaitingScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Text(
-          'BEKLEME ODASI',
-          style: GoogleFonts.outfit(
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.5,
-          ),
-        ),
-        leading: IconButton(
+    return RizikoScaffold(
+      title: 'BEKLEME ODASI',
+      leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () {
             showDialog(
@@ -146,14 +145,11 @@ class _WaitingScreenState extends State<WaitingScreen> {
             );
           },
         ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Container(
-        decoration: AppTheme.neonGradient,
-        child: Center(
+      body: Stack(
+        children: [
+          Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -187,15 +183,11 @@ class _WaitingScreenState extends State<WaitingScreen> {
                   ),
                   const SizedBox(height: 48),
                   
-                  // Waiting Info Card (Glassmorphic)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(28),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(32),
-                        decoration: AppTheme.cardGradient,
-                        child: Column(
+                  // Waiting Info Card
+                  GlassCard(
+                    radius: AppRadius.hero,
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    child: Column(
                           children: [
                             Text(
                               'Yönetici oyunu başlatmayı bekliyor...',
@@ -256,8 +248,6 @@ class _WaitingScreenState extends State<WaitingScreen> {
                             ),
                           ],
                         ),
-                      ),
-                    ),
                   ),
                 ] else ...[
                   // Game Started Animation (Glassmorphic)
@@ -309,7 +299,7 @@ class _WaitingScreenState extends State<WaitingScreen> {
                       color: const Color(0xFF00FF87),
                       letterSpacing: 2,
                       shadows: [
-                        BoxShadow(
+                        Shadow(
                           color: const Color(0xFF00FF87).withValues(alpha: 0.4),
                           blurRadius: 20,
                         ),
@@ -331,6 +321,19 @@ class _WaitingScreenState extends State<WaitingScreen> {
             ),
           ),
         ),
+          Align(
+            alignment: Alignment.topCenter,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirection: pi / 2,
+              maxBlastForce: 5,
+              minBlastForce: 2,
+              emissionFrequency: 0.05,
+              numberOfParticles: 24,
+              gravity: 0.15,
+            ),
+          ),
+        ],
       ),
     );
   }

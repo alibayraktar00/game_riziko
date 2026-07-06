@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_provider.dart';
+import '../../core/theme/app_theme.dart';
 import '../providers/game_provider.dart';
+import '../widgets/riziko_scaffold.dart';
 
 class DifficultySelectionScreen extends ConsumerWidget {
   final String category;
@@ -24,15 +26,13 @@ class DifficultySelectionScreen extends ConsumerWidget {
     final availableDifficulties = availableQuestionsInCategory.map((q) => q.difficulty).toSet().toList();
     availableDifficulties.sort();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('${t.translate(category.toLowerCase()).toUpperCase()} - ${t.translate('difficulty')}'),
-      ),
+    return RizikoScaffold(
+      title: '${t.translate(category.toLowerCase()).toUpperCase()} - ${t.translate('difficulty')}',
       body: Column(
-        children: [
+          children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg, horizontal: AppSpacing.md),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -123,6 +123,21 @@ class DifficultySelectionScreen extends ConsumerWidget {
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 2,
                               ),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Row(
+                            children: List.generate(5, (starIndex) {
+                              final filled = starIndex < difficultyLevel;
+                              return Icon(
+                                filled ? Icons.star_rounded : Icons.star_outline_rounded,
+                                size: 16,
+                                color: isAvailable
+                                    ? (filled ? _getDifficultyColor(difficultyLevel) : Colors.white24)
+                                    : Colors.white12,
+                              );
+                            }),
+                          ),
                         ),
                         trailing: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

@@ -78,12 +78,17 @@ class GameNotifier extends Notifier<GameSession> {
     state = state.copyWith(teams: updatedTeams);
   }
 
+  void setMultipleChoice(bool value) {
+    state = state.copyWith(isMultipleChoice: value);
+  }
+
   void resetGame() {
     state = GameSession(
       id: _uuid.v4(), 
       teams: state.teams.map((t) => t.copyWith(score: 0)).toList(),
       createdAt: DateTime.now(),
       hasStarted: false,
+      isMultipleChoice: state.isMultipleChoice,
     );
   }
 

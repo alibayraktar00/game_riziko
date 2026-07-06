@@ -9,7 +9,19 @@ class Question extends Equatable {
   final Map<String, String> translations;
   final List<String> answers;
   final List<String> keywords;
-  
+
+  /// Çoktan seçmeli modda kullanılacak, konuyla ilgili mantıklı yanlış
+  /// şıklar; translations gibi locale bazlı: {'en': [...], 'tr': [...]}
+  /// (AI tarafından soruyla birlikte üretilir). Boşsa question_screen başka
+  /// sorulardan çeldirici toplama mantığına düşer.
+  final Map<String, List<String>> distractors;
+
+  /// Belirtilen locale için çeldirici listesini döner. Bulunamazsa
+  /// İngilizce'ye, o da yoksa boş listeye düşer.
+  List<String> getDistractors(String languageCode) {
+    return distractors[languageCode] ?? distractors['en'] ?? const [];
+  }
+
   // New media fields
   final String? imageUrl;
   final String? audioUrl;
@@ -22,6 +34,7 @@ class Question extends Equatable {
     required this.translations,
     required this.answers,
     required this.keywords,
+    this.distractors = const {},
     this.imageUrl,
     this.audioUrl,
     this.isCustom = false,
@@ -40,6 +53,7 @@ class Question extends Equatable {
       'translations': translations,
       'answers': answers,
       'keywords': keywords,
+      'distractors': distractors,
       'imageUrl': imageUrl,
       'audioUrl': audioUrl,
       'isCustom': isCustom,
@@ -54,6 +68,10 @@ class Question extends Equatable {
       translations: Map<String, String>.from(map['translations'] ?? {}),
       answers: List<String>.from(map['answers'] ?? []),
       keywords: List<String>.from(map['keywords'] ?? []),
+      distractors: (map['distractors'] as Map?)?.map(
+            (key, value) => MapEntry(key as String, List<String>.from(value as List)),
+          ) ??
+          const {},
       imageUrl: map['imageUrl'],
       audioUrl: map['audioUrl'],
       isCustom: map['isCustom'] ?? false,
@@ -65,5 +83,6 @@ class Question extends Equatable {
   factory Question.fromJson(String source) => Question.fromMap(json.decode(source));
 
   @override
-  List<Object?> get props => [id, category, difficulty, translations, answers, keywords, imageUrl, audioUrl, isCustom];
+  List<Object?> get props =>
+      [id, category, difficulty, translations, answers, keywords, distractors, imageUrl, audioUrl, isCustom];
 }

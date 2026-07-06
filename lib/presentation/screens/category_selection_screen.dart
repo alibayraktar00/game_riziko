@@ -12,6 +12,9 @@ import '../widgets/language_picker_button.dart';
 import '../../core/theme/app_theme.dart';
 import '../../domain/entities/team.dart';
 import '../../domain/entities/question.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/riziko_scaffold.dart';
+import '../../core/category_icons.dart';
 
 class CategorySelectionScreen extends ConsumerWidget {
   const CategorySelectionScreen({super.key});
@@ -25,38 +28,24 @@ class CategorySelectionScreen extends ConsumerWidget {
     final t = AppLocalizations(locale);
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Text(
-          t.translate('categories').toUpperCase(),
-          style: GoogleFonts.outfit(
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.5,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.go('/team-setup'),
-        ),
-        actions: [
-          const LanguagePickerButton(),
-          const SizedBox(width: 8),
-          IconButton(
-            icon: const Icon(Icons.leaderboard_rounded),
-            color: colorScheme.primary,
-            onPressed: () => context.push('/scoreboard'),
-          ).animate(onPlay: (c) => c.repeat(reverse: true))
-           .scale(begin: const Offset(1.0, 1.0), end: const Offset(1.1, 1.1), duration: 1.seconds),
-          const SizedBox(width: 12),
-        ],
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+    return RizikoScaffold(
+      title: t.translate('categories').toUpperCase(),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        onPressed: () => context.go('/team-setup'),
       ),
-      body: Container(
-        decoration: AppTheme.neonGradient,
-        child: questionsAsync.when(
+      actions: [
+        const LanguagePickerButton(),
+        const SizedBox(width: 8),
+        IconButton(
+          icon: const Icon(Icons.leaderboard_rounded),
+          color: colorScheme.primary,
+          onPressed: () => context.push('/scoreboard'),
+        ).animate(onPlay: (c) => c.repeat(reverse: true))
+         .scale(begin: const Offset(1.0, 1.0), end: const Offset(1.1, 1.1), duration: 1.seconds),
+        const SizedBox(width: AppSpacing.sm),
+      ],
+      body: questionsAsync.when(
           data: (originalQuestions) {
             // Get selected categories from gameSession, or fallback to categories from remaining questions
             final activeCategories = gameSession.selectedCategories.isNotEmpty
@@ -77,6 +66,18 @@ class CategorySelectionScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.amber.withValues(alpha: 0.08),
+                        boxShadow: [
+                          BoxShadow(color: Colors.amber.withValues(alpha: 0.25), blurRadius: 30, spreadRadius: 2),
+                        ],
+                      ),
+                      child: const Icon(Icons.emoji_events_rounded, size: 64, color: Colors.amber),
+                    ).animate().fadeIn(duration: 500.ms).scale(begin: const Offset(0.6, 0.6), end: const Offset(1.0, 1.0), curve: Curves.elasticOut),
+                    const SizedBox(height: 24),
                     Text(
                       t.translate('game_over'),
                       style: GoogleFonts.outfit(
@@ -84,7 +85,7 @@ class CategorySelectionScreen extends ConsumerWidget {
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
                       ),
-                    ).animate().fadeIn().scale(),
+                    ).animate().fadeIn(delay: 200.ms).scale(),
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () => context.push('/scoreboard'),
@@ -154,7 +155,6 @@ class CategorySelectionScreen extends ConsumerWidget {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) => Center(child: Text('Error: $error')),
         ),
-      ),
     );
   }
 
@@ -163,21 +163,10 @@ class CategorySelectionScreen extends ConsumerWidget {
     final progressPercentage = totalCount > 0 ? (completedCount / totalCount).clamp(0.0, 1.0) : 0.0;
     final avatarEmoji = _getEmojiForTeam(currentTeam.name);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(28),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.03),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.08),
-              width: 1.2,
-            ),
-          ),
-          child: Row(
+    return GlassCard(
+      radius: AppRadius.hero,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Row(
             children: [
               // Leaderboard Avatar
               Container(
@@ -232,27 +221,31 @@ class CategorySelectionScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // Progress Bar
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: Stack(
-                        children: [
-                          Container(
-                            height: 6,
-                            color: Colors.white.withValues(alpha: 0.1),
-                          ),
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 500),
-                            height: 6,
-                            width: progressPercentage * 150, // width factor
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [colorScheme.primary, colorScheme.secondary],
-                              ),
-                              borderRadius: BorderRadius.circular(4),
+                    // Progress Bar — scales to actual available width instead
+                    // of a hardcoded pixel value.
+                    LayoutBuilder(
+                      builder: (context, constraints) => ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: Stack(
+                          children: [
+                            Container(
+                              height: 6,
+                              width: constraints.maxWidth,
+                              color: Colors.white.withValues(alpha: 0.1),
                             ),
-                          ),
-                        ],
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 500),
+                              height: 6,
+                              width: constraints.maxWidth * progressPercentage,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [colorScheme.primary, colorScheme.secondary],
+                                ),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -307,8 +300,6 @@ class CategorySelectionScreen extends ConsumerWidget {
               ),
             ],
           ),
-        ),
-      ),
     );
   }
 
@@ -325,8 +316,8 @@ class CategorySelectionScreen extends ConsumerWidget {
       itemCount: upcomingCategories.length,
       itemBuilder: (context, index) {
         final category = upcomingCategories[index];
-        final categoryIcon = _getCategoryIcon(category);
-        
+        final catIcon = categoryIcon(category);
+
         return ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: BackdropFilter(
@@ -345,7 +336,7 @@ class CategorySelectionScreen extends ConsumerWidget {
                     bottom: -10,
                     child: Opacity(
                       opacity: 0.1,
-                      child: Icon(categoryIcon, size: 56, color: Colors.white),
+                      child: Icon(catIcon, size: 56, color: Colors.white),
                     ),
                   ),
                   Column(
@@ -398,28 +389,6 @@ class CategorySelectionScreen extends ConsumerWidget {
     final emojis = ['🦊', '🐯', '🐻', '🐼', '🦁', '🐨', '🐙', '🐸', '🦄'];
     return emojis[code % emojis.length];
   }
-
-  static IconData _getCategoryIcon(String category) {
-    final lowerCategory = category.toLowerCase();
-    if (lowerCategory.contains('science') || lowerCategory.contains('bilim')) {
-      return Icons.science_rounded;
-    } else if (lowerCategory.contains('history') || lowerCategory.contains('tarih')) {
-      return Icons.castle_rounded;
-    } else if (lowerCategory.contains('geography') || lowerCategory.contains('coğrafya')) {
-      return Icons.public_rounded;
-    } else if (lowerCategory.contains('sports') || lowerCategory.contains('spor')) {
-      return Icons.sports_basketball_rounded;
-    } else if (lowerCategory.contains('entertainment') || lowerCategory.contains('eğlence')) {
-      return Icons.movie_filter_rounded;
-    } else if (lowerCategory.contains('art') || lowerCategory.contains('sanat')) {
-      return Icons.palette_rounded;
-    } else if (lowerCategory.contains('technology') || lowerCategory.contains('teknoloji')) {
-      return Icons.biotech_rounded;
-    } else if (lowerCategory.contains('general culture') || lowerCategory.contains('genel kültür')) {
-      return Icons.menu_book_rounded;
-    }
-    return Icons.category_rounded;
-  }
 }
 
 class _CategoryRow extends StatelessWidget {
@@ -437,7 +406,7 @@ class _CategoryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categoryIcon = _getCategoryIcon(category);
+    final catIcon = categoryIcon(category);
     final categoryColor = _getCategoryMainColor(category);
 
     return Container(
@@ -540,7 +509,7 @@ class _CategoryRow extends StatelessWidget {
                             ),
                           ),
                           child: Icon(
-                            categoryIcon, 
+                            catIcon,
                             color: Colors.white,
                             size: 20,
                           ),
@@ -756,28 +725,6 @@ class _CategoryRow extends StatelessWidget {
     }
     return const Color(0xFF00E5FF);
   }
-
-  IconData _getCategoryIcon(String category) {
-    final lowerCategory = category.toLowerCase();
-    if (lowerCategory.contains('science') || lowerCategory.contains('bilim')) {
-      return Icons.science_rounded;
-    } else if (lowerCategory.contains('history') || lowerCategory.contains('tarih')) {
-      return Icons.castle_rounded;
-    } else if (lowerCategory.contains('geography') || lowerCategory.contains('coğrafya')) {
-      return Icons.public_rounded;
-    } else if (lowerCategory.contains('sports') || lowerCategory.contains('spor')) {
-      return Icons.sports_basketball_rounded;
-    } else if (lowerCategory.contains('entertainment') || lowerCategory.contains('eğlence')) {
-      return Icons.movie_filter_rounded;
-    } else if (lowerCategory.contains('art') || lowerCategory.contains('sanat')) {
-      return Icons.palette_rounded;
-    } else if (lowerCategory.contains('technology') || lowerCategory.contains('teknoloji')) {
-      return Icons.biotech_rounded;
-    } else if (lowerCategory.contains('general culture') || lowerCategory.contains('genel kültür')) {
-      return Icons.menu_book_rounded;
-    }
-    return Icons.category_rounded;
-  }
 }
 
 class _DifficultyIndicator extends StatelessWidget {
@@ -805,11 +752,8 @@ class _DifficultyIndicator extends StatelessWidget {
         Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: isPlayable 
-              ? () {
-                  debugPrint('DifficultyIndicator TAPPED: category=$category, difficulty=$level');
-                  context.push('/question', extra: {'category': category, 'difficulty': level});
-                }
+            onTap: isPlayable
+              ? () => context.push('/question', extra: {'category': category, 'difficulty': level})
               : null,
             borderRadius: BorderRadius.circular(18),
             child: AnimatedContainer(

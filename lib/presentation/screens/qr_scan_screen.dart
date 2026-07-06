@@ -1,9 +1,9 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/riziko_scaffold.dart';
 
 class QRScanScreen extends StatefulWidget {
   const QRScanScreen({super.key});
@@ -20,36 +20,21 @@ class _QRScanScreenState extends State<QRScanScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Text(
-          'QR KODU TARA',
-          style: GoogleFonts.outfit(
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.5,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.go('/mode-selection'),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+    return RizikoScaffold(
+      title: 'QR KODU TARA',
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        onPressed: () => context.go('/mode-selection'),
       ),
-      body: Container(
-        decoration: AppTheme.neonGradient,
-        child: SafeArea(
-          child: Column(
+      body: Column(
             children: [
               // Scanner Section
               Expanded(
                 flex: 3,
                 child: Container(
-                  margin: const EdgeInsets.all(24),
+                  margin: const EdgeInsets.all(AppSpacing.lg),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(AppRadius.card),
                     border: Border.all(
                       color: colorScheme.primary.withValues(alpha: 0.4),
                       width: 2,
@@ -79,141 +64,70 @@ class _QRScanScreenState extends State<QRScanScreen> {
               // Status Section
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-                child: Column(
-                  children: [
-                    if (_scannedCode != null) ...[
-                      // Scanned Success Glassmorphic Container
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                          child: Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.03),
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(
-                                color: const Color(0xFF00FF87).withValues(alpha: 0.35),
-                                width: 1.5,
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xl),
+                child: _scannedCode != null
+                    ? GlassCard(
+                        accentColor: const Color(0xFF00FF87),
+                        selected: true,
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(AppSpacing.sm),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF00FF87),
+                                shape: BoxShape.circle,
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFF00FF87).withValues(alpha: 0.1),
-                                  blurRadius: 30,
-                                  spreadRadius: 0,
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFF00FF87),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.check_circle_rounded,
-                                    size: 36,
-                                    color: Color(0xFF070913),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'QR KODU OKUNDU!',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w800,
-                                    color: const Color(0xFF00FF87),
-                                    letterSpacing: 1.2,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Kod: $_scannedCode',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white.withValues(alpha: 0.8),
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 52,
-                                  child: ElevatedButton(
-                                    onPressed: () => _proceedToNickname(),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF00FF87),
-                                      foregroundColor: const Color(0xFF070913),
-                                      elevation: 8,
-                                      shadowColor: const Color(0xFF00FF87).withValues(alpha: 0.4),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'DEVAM ET',
-                                      style: GoogleFonts.outfit(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w800,
-                                        letterSpacing: 1.5,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ] else ...[
-                      // Waiting for Scan Glassmorphic Container
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                          child: Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.02),
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(
-                                color: colorScheme.primary.withValues(alpha: 0.2),
-                                width: 1.2,
+                              child: const Icon(
+                                Icons.check_circle_rounded,
+                                size: 36,
+                                color: Color(0xFF070913),
                               ),
                             ),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.qr_code_scanner_rounded,
-                                  size: 40,
-                                  color: colorScheme.primary,
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'QR Kodu Kameraya Gösterin',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white.withValues(alpha: 0.7),
-                                    letterSpacing: 1.0,
-                                  ),
-                                ),
-                              ],
+                            const SizedBox(height: AppSpacing.md),
+                            Text(
+                              'QR KODU OKUNDU!',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(color: const Color(0xFF00FF87)),
                             ),
-                          ),
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(
+                              'Kod: $_scannedCode',
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                            const SizedBox(height: AppSpacing.md + 4),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 52,
+                              child: ElevatedButton(
+                                onPressed: () => _proceedToNickname(),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF00FF87),
+                                  foregroundColor: const Color(0xFF070913),
+                                ),
+                                child: const Text('DEVAM ET'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : GlassCard(
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.qr_code_scanner_rounded,
+                              size: 40,
+                              color: colorScheme.primary,
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            Text(
+                              'QR Kodu Kameraya Gösterin',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(letterSpacing: 1.0),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ],
-                ),
               ),
             ],
           ),
-        ),
-      ),
     );
   }
 

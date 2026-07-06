@@ -23,6 +23,11 @@ class AppLocalizations {
       'enter_team_name': 'Enter Team Name',
       'min_teams_warning': 'At least 2 teams are required to start.',
       'continue_btn': 'CONTINUE',
+      'question_format': 'QUESTION FORMAT',
+      'format_classic': 'Classic',
+      'format_multiple_choice': 'Multiple Choice',
+      'classic_desc': 'Answer by typing or speaking',
+      'multiple_choice_desc': 'Choose from 4 options',
 
       // Category Selection Screen
       'categories': 'CATEGORIES',
@@ -63,6 +68,13 @@ class AppLocalizations {
       // Language & Settings
       'language': 'Language',
       'settings': 'SETTINGS',
+      'background_music': 'Background Music',
+      'sound_effects': 'Sound Effects',
+      'timer_duration': 'Question Timer Duration',
+      'current_language': 'Current Language',
+      'audio': 'AUDIO',
+      'gameplay': 'GAMEPLAY',
+      'seconds': 'seconds',
 
       // Categories
       'science': 'Science',
@@ -99,6 +111,11 @@ class AppLocalizations {
       'enter_team_name': 'Takım Adı Girin',
       'min_teams_warning': 'Başlamak için en az 2 takım gerekli.',
       'continue_btn': 'DEVAM ET',
+      'question_format': 'SORU FORMATI',
+      'format_classic': 'Klasik',
+      'format_multiple_choice': 'Çoktan Seçmeli',
+      'classic_desc': 'Yazarak veya konuşarak cevapla',
+      'multiple_choice_desc': '4 şık arasından seçim yap',
 
       // Category Selection Screen
       'categories': 'KATEGORİLER',
@@ -137,8 +154,15 @@ class AppLocalizations {
       'continue_game': 'OYUNA DEVAM',
 
       // Language & Settings
-      'language': 'Language',
+      'language': 'Dil',
       'settings': 'AYARLAR',
+      'background_music': 'Arka Plan Müzik',
+      'sound_effects': 'Ses Efektleri',
+      'timer_duration': 'Soru Süresi',
+      'current_language': 'Geçerli Dil',
+      'audio': 'SES',
+      'gameplay': 'OYUN İÇİ',
+      'seconds': 'saniye',
 
       // Categories
       'science': 'Bilim',

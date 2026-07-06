@@ -21,6 +21,7 @@ class GameSession extends Equatable {
   final bool isMultiplayer;
   final GameStatus status;
   final bool hasStarted;
+  final bool isMultipleChoice;
 
   const GameSession({
     required this.id,
@@ -34,6 +35,7 @@ class GameSession extends Equatable {
     this.isMultiplayer = false,
     this.status = GameStatus.waiting,
     this.hasStarted = false,
+    this.isMultipleChoice = false,
   });
 
   Team get currentTeam => teams[currentTeamIndex];
@@ -50,6 +52,7 @@ class GameSession extends Equatable {
     bool? isMultiplayer,
     GameStatus? status,
     bool? hasStarted,
+    bool? isMultipleChoice,
   }) {
     return GameSession(
       id: id ?? this.id,
@@ -63,6 +66,7 @@ class GameSession extends Equatable {
       isMultiplayer: isMultiplayer ?? this.isMultiplayer,
       status: status ?? this.status,
       hasStarted: hasStarted ?? this.hasStarted,
+      isMultipleChoice: isMultipleChoice ?? this.isMultipleChoice,
     );
   }
 
@@ -79,5 +83,6 @@ class GameSession extends Equatable {
         isMultiplayer, 
         status,
         hasStarted,
+        isMultipleChoice,
       ];
 }

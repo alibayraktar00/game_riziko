@@ -1,15 +1,22 @@
 import '../../domain/entities/question.dart';
+import '../../domain/repositories/question_pool_repository.dart';
 import '../../domain/repositories/question_repository.dart';
 import '../models/question_model.dart';
 
+import '../../services/ai_question_service.dart';
 import '../../services/custom_content_service.dart';
 
 class QuestionRepositoryImpl implements QuestionRepository {
   final CustomContentService _customContentService;
-  
+  final QuestionPoolRepository _questionPoolRepository;
+
   static final List<Map<String, dynamic>> _mockQuestionsJson = _buildQuestions();
 
-  QuestionRepositoryImpl(this._customContentService);
+  /// Statik soru bankasının ham JSON hâli — lib/tools/seed_questions.dart
+  /// tarafından bu içeriği Firestore'a tohumlamak için kullanılır.
+  static List<Map<String, dynamic>> get staticQuestionsJson => _mockQuestionsJson;
+
+  QuestionRepositoryImpl(this._customContentService, this._questionPoolRepository);
 
   static List<Map<String, dynamic>> _buildQuestions() {
     return [
@@ -24,6 +31,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['h2o'],
         'keywords': ['h2o'],
+        'distractors': {
+          'en': ['co2', 'o2', 'nacl'],
+          'tr': ['co2', 'o2', 'nacl'],
+        },
       },
       {
         'id': 'sci_2',
@@ -35,6 +46,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['8', 'eight', 'sekiz'],
         'keywords': ['8'],
+        'distractors': {
+          'en': ['6', '10', '4'],
+          'tr': ['6', '10', '4'],
+        },
       },
       {
         'id': 'sci_3',
@@ -46,6 +61,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['mars'],
         'keywords': ['mars'],
+        'distractors': {
+          'en': ['venus', 'jupiter', 'mercury'],
+          'tr': ['venüs', 'jüpiter', 'merkür'],
+        },
       },
       {
         'id': 'sci_4',
@@ -57,6 +76,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['mitochondria', 'mitokondri'],
         'keywords': ['mitochondria', 'mitokondri'],
+        'distractors': {
+          'en': ['nucleus', 'ribosome', 'golgi apparatus'],
+          'tr': ['çekirdek', 'ribozom', 'golgi aygıtı'],
+        },
       },
       {
         'id': 'sci_5',
@@ -68,6 +91,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['300000', '299792'],
         'keywords': ['300000'],
+        'distractors': {
+          'en': ['150000', '500000', '1000000'],
+          'tr': ['150000', '500000', '1000000'],
+        },
       },
       {
         'id': 'sci_6',
@@ -79,6 +106,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['carbon dioxide', 'co2', 'karbondioksit'],
         'keywords': ['co2', 'carbon dioxide', 'karbondioksit'],
+        'distractors': {
+          'en': ['oxygen', 'nitrogen', 'hydrogen'],
+          'tr': ['oksijen', 'azot', 'hidrojen'],
+        },
       },
       {
         'id': 'sci_7',
@@ -90,6 +121,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['6', 'six', 'altı'],
         'keywords': ['6'],
+        'distractors': {
+          'en': ['8', '12', '1'],
+          'tr': ['8', '12', '1'],
+        },
       },
       {
         'id': 'sci_8',
@@ -101,6 +136,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['einstein', 'albert einstein'],
         'keywords': ['einstein'],
+        'distractors': {
+          'en': ['newton', 'galileo', 'hawking'],
+          'tr': ['newton', 'galileo', 'hawking'],
+        },
       },
       {
         'id': 'sci_9',
@@ -112,6 +151,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['5730 years', '5730 yıl', '5730'],
         'keywords': ['5730'],
+        'distractors': {
+          'en': ['4000 years', '8000 years', '10000 years'],
+          'tr': ['4000 yıl', '8000 yıl', '10000 yıl'],
+        },
       },
       {
         'id': 'sci_10',
@@ -123,6 +166,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['neutron', 'nötron'],
         'keywords': ['neutron', 'nötron'],
+        'distractors': {
+          'en': ['proton', 'electron', 'positron'],
+          'tr': ['proton', 'elektron', 'pozitron'],
+        },
       },
 
       // ───────────────── TARİH / HISTORY ─────────────────
@@ -136,6 +183,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['1945'],
         'keywords': ['1945'],
+        'distractors': {
+          'en': ['1939', '1918', '1950'],
+          'tr': ['1939', '1918', '1950'],
+        },
       },
       {
         'id': 'his_2',
@@ -147,6 +198,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['george washington', 'washington'],
         'keywords': ['washington'],
+        'distractors': {
+          'en': ['thomas jefferson', 'john adams', 'abraham lincoln'],
+          'tr': ['thomas jefferson', 'john adams', 'abraham lincoln'],
+        },
       },
       {
         'id': 'his_3',
@@ -158,6 +213,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['1923'],
         'keywords': ['1923'],
+        'distractors': {
+          'en': ['1919', '1922', '1938'],
+          'tr': ['1919', '1922', '1938'],
+        },
       },
       {
         'id': 'his_4',
@@ -169,6 +228,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['osman', 'osman i', 'osman gazi'],
         'keywords': ['osman'],
+        'distractors': {
+          'en': ['orhan', 'mehmed the conqueror', 'suleiman'],
+          'tr': ['orhan gazi', 'fatih sultan mehmed', 'kanuni süleyman'],
+        },
       },
       {
         'id': 'his_5',
@@ -180,6 +243,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['great pyramid', 'pyramid of giza', 'giza'],
         'keywords': ['pyramid', 'giza'],
+        'distractors': {
+          'en': ['hanging gardens of babylon', 'colossus of rhodes', 'lighthouse of alexandria'],
+          'tr': ['babil\'in asma bahçeleri', 'rodos heykeli', 'i̇skenderiye feneri'],
+        },
       },
       {
         'id': 'his_6',
@@ -191,6 +258,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['1989'],
         'keywords': ['1989'],
+        'distractors': {
+          'en': ['1961', '1991', '1975'],
+          'tr': ['1961', '1991', '1975'],
+        },
       },
       {
         'id': 'his_7',
@@ -202,6 +273,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['sun tzu', 'sun tzu'],
         'keywords': ['sun tzu'],
+        'distractors': {
+          'en': ['confucius', 'machiavelli', 'plato'],
+          'tr': ['konfüçyüs', 'machiavelli', 'platon'],
+        },
       },
       {
         'id': 'his_8',
@@ -213,6 +288,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['1453'],
         'keywords': ['1453'],
+        'distractors': {
+          'en': ['1071', '1517', '1600'],
+          'tr': ['1071', '1517', '1600'],
+        },
       },
       {
         'id': 'his_9',
@@ -224,6 +303,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['ramesses', 'ramesses ii', 'ramses'],
         'keywords': ['ramesses', 'ramses'],
+        'distractors': {
+          'en': ['tutankhamun', 'akhenaten', 'thutmose'],
+          'tr': ['tutankamon', 'akhenaton', 'thutmose'],
+        },
       },
       {
         'id': 'his_10',
@@ -235,6 +318,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['1215'],
         'keywords': ['1215'],
+        'distractors': {
+          'en': ['1066', '1300', '1189'],
+          'tr': ['1066', '1300', '1189'],
+        },
       },
 
       // ───────────────── COĞRAFYA / GEOGRAPHY ─────────────────
@@ -248,6 +335,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['paris'],
         'keywords': ['paris'],
+        'distractors': {
+          'en': ['berlin', 'madrid', 'rome'],
+          'tr': ['berlin', 'madrid', 'roma'],
+        },
       },
       {
         'id': 'geo_2',
@@ -259,6 +350,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['pacific', 'pacific ocean', 'büyük okyanus'],
         'keywords': ['pacific'],
+        'distractors': {
+          'en': ['atlantic', 'indian ocean', 'arctic'],
+          'tr': ['atlantik', 'hint okyanusu', 'arktik'],
+        },
       },
       {
         'id': 'geo_3',
@@ -270,6 +365,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['nile', 'nil'],
         'keywords': ['nile', 'nil'],
+        'distractors': {
+          'en': ['amazon', 'yangtze', 'mississippi'],
+          'tr': ['amazon', 'yangtze', 'mississippi'],
+        },
       },
       {
         'id': 'geo_4',
@@ -281,6 +380,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['canada', 'kanada'],
         'keywords': ['canada', 'kanada'],
+        'distractors': {
+          'en': ['russia', 'finland', 'united states'],
+          'tr': ['rusya', 'finlandiya', 'amerika birleşik devletleri'],
+        },
       },
       {
         'id': 'geo_5',
@@ -292,6 +395,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['canberra'],
         'keywords': ['canberra'],
+        'distractors': {
+          'en': ['sydney', 'melbourne', 'brisbane'],
+          'tr': ['sidney', 'melbourne', 'brisbane'],
+        },
       },
       {
         'id': 'geo_6',
@@ -303,6 +410,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['sahara', 'sahara desert'],
         'keywords': ['sahara'],
+        'distractors': {
+          'en': ['gobi', 'kalahari', 'arabian desert'],
+          'tr': ['gobi', 'kalahari', 'arap çölü'],
+        },
       },
       {
         'id': 'geo_7',
@@ -314,6 +425,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['canada', 'kanada'],
         'keywords': ['canada', 'kanada'],
+        'distractors': {
+          'en': ['indonesia', 'russia', 'australia'],
+          'tr': ['endonezya', 'rusya', 'avustralya'],
+        },
       },
       {
         'id': 'geo_8',
@@ -325,6 +440,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['vatican', 'vatican city', 'vatikan'],
         'keywords': ['vatican', 'vatikan'],
+        'distractors': {
+          'en': ['monaco', 'san marino', 'liechtenstein'],
+          'tr': ['monako', 'san marino', 'lihtenştayn'],
+        },
       },
       {
         'id': 'geo_9',
@@ -336,6 +455,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['baikal', 'lake baikal', 'baykal'],
         'keywords': ['baikal', 'baykal'],
+        'distractors': {
+          'en': ['tanganyika', 'lake superior', 'caspian sea'],
+          'tr': ['tanganika', 'superior gölü', 'hazar denizi'],
+        },
       },
       {
         'id': 'geo_10',
@@ -347,6 +470,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['ural', 'ural mountains', 'ural dağları'],
         'keywords': ['ural'],
+        'distractors': {
+          'en': ['caucasus', 'alps', 'himalayas'],
+          'tr': ['kafkaslar', 'alpler', 'himalayalar'],
+        },
       },
 
       // ───────────────── SPOR / SPORTS ─────────────────
@@ -360,6 +487,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['11', 'eleven', 'on bir'],
         'keywords': ['11'],
+        'distractors': {
+          'en': ['9', '15', '6'],
+          'tr': ['9', '15', '6'],
+        },
       },
       {
         'id': 'spt_2',
@@ -371,6 +502,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['basketball', 'basketbol'],
         'keywords': ['basketball', 'basketbol'],
+        'distractors': {
+          'en': ['volleyball', 'handball', 'football'],
+          'tr': ['voleybol', 'hentbol', 'futbol'],
+        },
       },
       {
         'id': 'spt_3',
@@ -382,6 +517,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['brazil', 'brezilya'],
         'keywords': ['brazil', 'brezilya'],
+        'distractors': {
+          'en': ['germany', 'italy', 'argentina'],
+          'tr': ['almanya', 'i̇talya', 'arjantin'],
+        },
       },
       {
         'id': 'spt_4',
@@ -393,6 +532,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['5', 'five', 'beş'],
         'keywords': ['5'],
+        'distractors': {
+          'en': ['4', '6', '7'],
+          'tr': ['4', '6', '7'],
+        },
       },
       {
         'id': 'spt_5',
@@ -404,6 +547,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['1896'],
         'keywords': ['1896'],
+        'distractors': {
+          'en': ['1900', '1924', '1912'],
+          'tr': ['1900', '1924', '1912'],
+        },
       },
       {
         'id': 'spt_6',
@@ -415,6 +562,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['djokovic', 'novak djokovic'],
         'keywords': ['djokovic'],
+        'distractors': {
+          'en': ['federer', 'nadal', 'sampras'],
+          'tr': ['federer', 'nadal', 'sampras'],
+        },
       },
       {
         'id': 'spt_7',
@@ -426,6 +577,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['300'],
         'keywords': ['300'],
+        'distractors': {
+          'en': ['250', '200', '350'],
+          'tr': ['250', '200', '350'],
+        },
       },
       {
         'id': 'spt_8',
@@ -437,6 +592,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['hamilton', 'lewis hamilton', 'schumacher', 'michael schumacher'],
         'keywords': ['hamilton', 'schumacher'],
+        'distractors': {
+          'en': ['senna', 'vettel', 'verstappen'],
+          'tr': ['senna', 'vettel', 'verstappen'],
+        },
       },
       {
         'id': 'spt_9',
@@ -448,6 +607,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['42.195', '42', '42 km'],
         'keywords': ['42'],
+        'distractors': {
+          'en': ['40', '45', '50'],
+          'tr': ['40', '45', '50'],
+        },
       },
       {
         'id': 'spt_10',
@@ -459,6 +622,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['24', 'twenty four', 'yirmi dört'],
         'keywords': ['24'],
+        'distractors': {
+          'en': ['30', '20', '35'],
+          'tr': ['30', '20', '35'],
+        },
       },
 
       // ───────────────── EĞLENCE / ENTERTAINMENT ─────────────────
@@ -472,6 +639,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['robert downey jr', 'robert downey', 'rdj'],
         'keywords': ['downey'],
+        'distractors': {
+          'en': ['chris evans', 'chris hemsworth', 'mark ruffalo'],
+          'tr': ['chris evans', 'chris hemsworth', 'mark ruffalo'],
+        },
       },
       {
         'id': 'ent_2',
@@ -483,6 +654,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['7', 'seven', 'yedi'],
         'keywords': ['7'],
+        'distractors': {
+          'en': ['6', '8', '5'],
+          'tr': ['6', '8', '5'],
+        },
       },
       {
         'id': 'ent_3',
@@ -494,6 +669,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['queen'],
         'keywords': ['queen'],
+        'distractors': {
+          'en': ['the beatles', 'led zeppelin', 'pink floyd'],
+          'tr': ['the beatles', 'led zeppelin', 'pink floyd'],
+        },
       },
       {
         'id': 'ent_4',
@@ -505,6 +684,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['avatar'],
         'keywords': ['avatar'],
+        'distractors': {
+          'en': ['titanic', 'avengers: endgame', 'star wars'],
+          'tr': ['titanic', 'avengers: endgame', 'star wars'],
+        },
       },
       {
         'id': 'ent_5',
@@ -516,6 +699,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['christopher nolan', 'nolan'],
         'keywords': ['nolan'],
+        'distractors': {
+          'en': ['steven spielberg', 'james cameron', 'quentin tarantino'],
+          'tr': ['steven spielberg', 'james cameron', 'quentin tarantino'],
+        },
       },
       {
         'id': 'ent_6',
@@ -527,6 +714,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['gotham', 'gotham city'],
         'keywords': ['gotham'],
+        'distractors': {
+          'en': ['metropolis', 'central city', 'star city'],
+          'tr': ['metropolis', 'central city', 'star city'],
+        },
       },
       {
         'id': 'ent_7',
@@ -538,6 +729,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['beyonce', 'beyoncé'],
         'keywords': ['beyonce', 'beyoncé'],
+        'distractors': {
+          'en': ['adele', 'taylor swift', 'rihanna'],
+          'tr': ['adele', 'taylor swift', 'rihanna'],
+        },
       },
       {
         'id': 'ent_8',
@@ -549,6 +744,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['arendelle'],
         'keywords': ['arendelle'],
+        'distractors': {
+          'en': ['agrabah', 'atlantica', 'corona'],
+          'tr': ['agrabah', 'atlantica', 'corona'],
+        },
       },
       {
         'id': 'ent_9',
@@ -560,6 +759,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['wings', 'kanatlar'],
         'keywords': ['wings'],
+        'distractors': {
+          'en': ['sunrise', 'metropolis', 'the jazz singer'],
+          'tr': ['sunrise', 'metropolis', 'the jazz singer'],
+        },
       },
       {
         'id': 'ent_10',
@@ -571,6 +774,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['2007'],
         'keywords': ['2007'],
+        'distractors': {
+          'en': ['2005', '2008', '2010'],
+          'tr': ['2005', '2008', '2010'],
+        },
       },
 
       // ───────────────── SANAT / ART ─────────────────
@@ -584,6 +791,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['da vinci', 'leonardo da vinci'],
         'keywords': ['da vinci'],
+        'distractors': {
+          'en': ['michelangelo', 'raphael', 'botticelli'],
+          'tr': ['michelangelo', 'raphael', 'botticelli'],
+        },
       },
       {
         'id': 'art_2',
@@ -595,6 +806,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['van gogh', 'vincent van gogh'],
         'keywords': ['van gogh'],
+        'distractors': {
+          'en': ['rembrandt', 'vermeer', 'monet'],
+          'tr': ['rembrandt', 'vermeer', 'monet'],
+        },
       },
       {
         'id': 'art_3',
@@ -606,6 +821,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['da vinci', 'leonardo da vinci'],
         'keywords': ['da vinci'],
+        'distractors': {
+          'en': ['michelangelo', 'raphael', 'titian'],
+          'tr': ['michelangelo', 'raphael', 'titian'],
+        },
       },
       {
         'id': 'art_4',
@@ -617,6 +836,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['dali', 'salvador dali'],
         'keywords': ['dali'],
+        'distractors': {
+          'en': ['picasso', 'miro', 'magritte'],
+          'tr': ['picasso', 'miro', 'magritte'],
+        },
       },
       {
         'id': 'art_5',
@@ -628,6 +851,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['michelangelo'],
         'keywords': ['michelangelo'],
+        'distractors': {
+          'en': ['donatello', 'bernini', 'rodin'],
+          'tr': ['donatello', 'bernini', 'rodin'],
+        },
       },
 
       // ───────────────── TEKNOLOJİ / TECHNOLOGY ─────────────────
@@ -641,6 +868,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['world wide web'],
         'keywords': ['world wide web'],
+        'distractors': {
+          'en': ['world web wide', 'wide world web', 'world wireless web'],
+          'tr': ['world web wide', 'wide world web', 'world wireless web'],
+        },
       },
       {
         'id': 'tech_2',
@@ -652,6 +883,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['bill gates', 'paul allen'],
         'keywords': ['bill gates', 'paul allen'],
+        'distractors': {
+          'en': ['steve jobs', 'larry page', 'mark zuckerberg'],
+          'tr': ['steve jobs', 'larry page', 'mark zuckerberg'],
+        },
       },
       {
         'id': 'tech_3',
@@ -663,6 +898,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['kotlin', 'java'],
         'keywords': ['kotlin', 'java'],
+        'distractors': {
+          'en': ['swift', 'python', 'c++'],
+          'tr': ['swift', 'python', 'c++'],
+        },
       },
       {
         'id': 'tech_4',
@@ -674,6 +913,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['artificial intelligence', 'yapay zeka'],
         'keywords': ['artificial intelligence', 'yapay zeka'],
+        'distractors': {
+          'en': ['automated intelligence', 'advanced interface', 'algorithmic inference'],
+          'tr': ['otomatik zeka', 'gelişmiş arayüz', 'algoritmik çıkarım'],
+        },
       },
       {
         'id': 'tech_5',
@@ -685,6 +928,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['charles babbage'],
         'keywords': ['babbage'],
+        'distractors': {
+          'en': ['alan turing', 'ada lovelace', 'john von neumann'],
+          'tr': ['alan turing', 'ada lovelace', 'john von neumann'],
+        },
       },
 
       // ───────────────── GENEL KÜLTÜR / GENERAL CULTURE ─────────────────
@@ -698,6 +945,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['7', 'seven', 'yedi'],
         'keywords': ['7'],
+        'distractors': {
+          'en': ['5', '6', '8'],
+          'tr': ['5', '6', '8'],
+        },
       },
       {
         'id': 'gen_2',
@@ -709,6 +960,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['blue whale', 'mavi balina'],
         'keywords': ['blue whale', 'mavi balina'],
+        'distractors': {
+          'en': ['elephant', 'giraffe', 'whale shark'],
+          'tr': ['fil', 'zürafa', 'balina köpekbalığı'],
+        },
       },
       {
         'id': 'gen_3',
@@ -720,6 +975,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['japan', 'japonya'],
         'keywords': ['japan', 'japonya'],
+        'distractors': {
+          'en': ['china', 'south korea', 'thailand'],
+          'tr': ['çin', 'güney kore', 'tayland'],
+        },
       },
       {
         'id': 'gen_4',
@@ -731,6 +990,10 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['yen'],
         'keywords': ['yen'],
+        'distractors': {
+          'en': ['won', 'yuan', 'ringgit'],
+          'tr': ['won', 'yuan', 'ringgit'],
+        },
       },
       {
         'id': 'gen_5',
@@ -742,19 +1005,45 @@ class QuestionRepositoryImpl implements QuestionRepository {
         },
         'answers': ['mandarin', 'chinese', 'çince'],
         'keywords': ['mandarin', 'chinese', 'çince'],
+        'distractors': {
+          'en': ['spanish', 'english', 'hindi'],
+          'tr': ['i̇spanyolca', 'i̇ngilizce', 'hintçe'],
+        },
       },
     ];
   }
 
   @override
   Future<List<Question>> getQuestions() async {
-    await Future.delayed(const Duration(milliseconds: 500));
     final builtIn = _mockQuestionsJson.map((json) {
       return QuestionModel.fromJson(json, json['id'] as String);
     }).toList();
-    
+
+    // Her (kategori, zorluk) slotu için önce Firestore'daki soru havuzuna
+    // bakılır; havuz yeterince doluysa oradan rastgele bir soru döner,
+    // değilse Gemini ile yeni sorular üretip havuzu büyütür. Firestore/Gemini
+    // tamamen başarısız olursa (anahtar yok, ağ hatası vb.) boş liste döner
+    // ve statik soru bankası tek başına kullanılmaya devam eder — uygulama
+    // hiçbir zaman kesintiye uğramaz.
+    final pooled = <Question>[];
+    for (final category in AiQuestionService.categories) {
+      for (final difficulty in AiQuestionService.difficulties) {
+        final slotQuestions = await _questionPoolRepository.getQuestionsForSlot(
+          category: category,
+          difficulty: difficulty,
+          count: 1,
+        );
+        pooled.addAll(slotQuestions);
+      }
+    }
+
     final custom = _customContentService.getCustomQuestions();
-    
-    return [...builtIn, ...custom];
+
+    // Havuzdan gelen sorular listenin başında olmalı: game_provider.dart
+    // içindeki startGame()/startGameWithCategories() her (kategori, zorluk)
+    // çifti için yalnızca İLK karşılaşılan soruyu tutuyor. Havuzdan/AI'den
+    // soru geldiyse o slot için kullanılsın, gelmediyse statik soru devreye
+    // girsin.
+    return [...pooled, ...builtIn, ...custom];
   }
 }
