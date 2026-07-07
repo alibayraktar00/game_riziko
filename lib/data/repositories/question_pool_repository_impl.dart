@@ -13,6 +13,12 @@ class QuestionPoolRepositoryImpl implements QuestionPoolRepository {
   /// eklenir.
   static const int poolThreshold = 20;
 
+  /// Soru üretim prompt'unun sürümü. Prompt'ta kalite düzeltmesi yapıldığında
+  /// artırılır; havuzdaki eski sürümle üretilmiş sorular (ör. alakasız
+  /// çeldiricili olanlar) okuma sırasında elenir ve arka planda silinir,
+  /// böylece havuz kendini yeni sürümle yeniden doldurur.
+  static const int promptVersion = 2;
+
   static const String _collectionName = 'questions_pool';
 
   final FirebaseFirestore _firestore;
@@ -36,7 +42,20 @@ class QuestionPoolRepositoryImpl implements QuestionPoolRepository {
           .where('difficulty', isEqualTo: difficulty)
           .get();
 
-      if (snapshot.docs.length < poolThreshold) {
+      // Eski prompt sürümüyle üretilmiş veya çeldiricisi eksik kayıtlar
+      // havuzdan sayılmaz: kullanılmazlar ve arka planda silinirler ki
+      // ekranda "başka sorulardan rastgele şık toplama" fallback'ini
+      // tetikleyip alakasız şıklara yol açmasınlar.
+      final validDocs = <QueryDocumentSnapshot<Map<String, dynamic>>>[];
+      for (final doc in snapshot.docs) {
+        if (_isCurrentQuality(doc.data())) {
+          validDocs.add(doc);
+        } else {
+          unawaited(_deleteStale(doc.reference));
+        }
+      }
+
+      if (validDocs.length < poolThreshold) {
         final generated = await _aiQuestionService.generateForSlot(
           category: category,
           difficulty: difficulty,
@@ -54,13 +73,13 @@ class QuestionPoolRepositoryImpl implements QuestionPoolRepository {
         }
 
         // Gemini başarısız oldu — havuzda az da olsa soru varsa onları kullan.
-        if (snapshot.docs.isEmpty) return [];
-        final docs = snapshot.docs.toList()..shuffle(Random());
+        if (validDocs.isEmpty) return [];
+        final docs = validDocs.toList()..shuffle(Random());
         return _docsToQuestions(docs.take(count).toList());
       }
 
       // Havuz yeterli — rastgele count kadar soru seç.
-      final docs = snapshot.docs.toList()..shuffle(Random());
+      final docs = validDocs.toList()..shuffle(Random());
       final selected = docs.take(count).toList();
 
       for (final doc in selected) {
@@ -75,6 +94,29 @@ class QuestionPoolRepositoryImpl implements QuestionPoolRepository {
     }
   }
 
+  /// Havuzdaki bir kaydın güncel kalite standardını karşılayıp
+  /// karşılamadığını kontrol eder: güncel prompt sürümüyle üretilmiş olmalı
+  /// ve her iki dil için de en az 3 çeldirici içermeli.
+  bool _isCurrentQuality(Map<String, dynamic> data) {
+    if ((data['promptVersion'] as num?)?.toInt() != promptVersion) return false;
+
+    final distractors = data['distractors'];
+    if (distractors is! Map) return false;
+    for (final lang in const ['en', 'tr']) {
+      final list = distractors[lang];
+      if (list is! List || list.length < 3) return false;
+    }
+    return true;
+  }
+
+  Future<void> _deleteStale(DocumentReference<Map<String, dynamic>> ref) async {
+    try {
+      await ref.delete();
+    } catch (_) {
+      // Silinemedi (izin/ağ) — kritik değil, okuma tarafında zaten elenmişti.
+    }
+  }
+
   Future<void> _saveToPool(String category, int difficulty, Question question) async {
     try {
       await _firestore.collection(_collectionName).add({
@@ -85,6 +127,7 @@ class QuestionPoolRepositoryImpl implements QuestionPoolRepository {
         'keywords': question.keywords,
         'distractors': question.distractors,
         'source': 'ai',
+        'promptVersion': promptVersion,
         'createdAt': FieldValue.serverTimestamp(),
         'usedCount': 0,
       });

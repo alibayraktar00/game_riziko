@@ -68,6 +68,19 @@ class AiQuestionService {
 
   Question? _toQuestion(Map<String, dynamic> map, String category, int difficulty, int index) {
     try {
+      final distractors = Map<String, List<String>>.from(
+        (map['distractors'] as Map).map(
+          (key, value) => MapEntry(key as String, List<String>.from(value as List)),
+        ),
+      );
+
+      // Her iki dil için de en az 3 çeldirici yoksa soruyu kullanma —
+      // aksi hâlde ekran başka soruların cevaplarından alakasız şıklar
+      // toplamak zorunda kalır.
+      if ((distractors['en']?.length ?? 0) < 3 || (distractors['tr']?.length ?? 0) < 3) {
+        return null;
+      }
+
       return Question(
         id: 'ai_${category}_${difficulty}_${DateTime.now().microsecondsSinceEpoch}_$index',
         category: category,
@@ -79,11 +92,7 @@ class AiQuestionService {
         ),
         answers: List<String>.from(map['answers'] as List),
         keywords: List<String>.from(map['keywords'] as List),
-        distractors: Map<String, List<String>>.from(
-          (map['distractors'] as Map).map(
-            (key, value) => MapEntry(key as String, List<String>.from(value as List)),
-          ),
-        ),
+        distractors: distractors,
         isCustom: true,
       );
     } catch (_) {
@@ -120,7 +129,9 @@ Zorluk seviyesi: $difficulty (1: çok temel/genel kültür, 5: uzman seviyesi/de
 $count adet soru üret. Her soru nesnesi şu alanları içermeli:
 - "translations": {"en": "İngilizce soru metni", "tr": "Türkçe soru metni"}
 - "answers": kabul edilebilir doğru cevapların listesi, küçük harf,
-  alternatif yazımlar/eş anlamlılar dahil
+  alternatif yazımlar/eş anlamlılar dahil. Listenin İLK elemanı İngilizce
+  kanonik cevap, SON elemanı Türkçe kanonik cevap olmalı (İngilizce ve
+  Türkçe cevap aynıysa tek eleman yeterli).
 - "keywords": cevabı eşleştirmek için kullanılacak kısa anahtar kelimeler
 - "distractors": {"en": [3 yanlış şık], "tr": [3 yanlış şık]} — çoktan
   seçmeli modda kullanılacak yanlış ama akla yatkın şıklar
@@ -135,6 +146,9 @@ Kurallar:
   büyüklükte sayılar olmalı). Asla konuyla alakasız veya saçma bir çeldirici
   üretme (örn. bir coğrafya sorusuna bir kişi ismi çeldirici olarak verme).
 - Şıklar birbirine yakın zorlukta olmalı, hiçbiri bariz yanlış görünmemeli.
+- "distractors" içindeki "tr" listesi tamamen Türkçe, "en" listesi tamamen
+  İngilizce olmalı; çeldiriciler doğru cevapla aynı dilde, aynı biçimde ve
+  benzer uzunlukta yazılmalı (hepsi küçük harf).
 - Sadece istenen JSON formatında yanıt ver.
 ''';
   }
