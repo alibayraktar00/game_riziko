@@ -29,11 +29,18 @@ class GameNotifier extends Notifier<GameSession> {
     state = state.copyWith(availableQuestions: questions);
   }
 
+  /// Kategori adları veri kaynağına göre büyük/küçük harf veya boşluk
+  /// farkı gösterebiliyor (statik banka, Firestore havuzu, özel sorular).
+  /// Tüm kategori karşılaştırmaları bu normalize form üzerinden yapılır —
+  /// aksi hâlde ör. "science" seçilince "Science" soruları filtreye
+  /// takılıyor ve o kategoride hiç soru yokmuş gibi görünüyordu.
+  static String _normalizeCategory(String category) => category.trim().toLowerCase();
+
   void startGame(List<Question> questions) {
     // Filter questions to keep only one per (category, difficulty) pair
     final Map<String, Question> uniqueQuestions = {};
     for (var q in questions) {
-      final key = '${q.category}_${q.difficulty}';
+      final key = '${_normalizeCategory(q.category)}_${q.difficulty}';
       if (!uniqueQuestions.containsKey(key)) {
         uniqueQuestions[key] = q;
       }
@@ -48,10 +55,11 @@ class GameNotifier extends Notifier<GameSession> {
 
   void startGameWithCategories(List<Question> questions, List<String> categories) {
     // Filter questions by selected categories and then keep only one per (category, difficulty) pair
+    final selected = categories.map(_normalizeCategory).toSet();
     final Map<String, Question> uniqueQuestions = {};
     for (var q in questions) {
-      if (categories.contains(q.category)) {
-        final key = '${q.category}_${q.difficulty}';
+      if (selected.contains(_normalizeCategory(q.category))) {
+        final key = '${_normalizeCategory(q.category)}_${q.difficulty}';
         if (!uniqueQuestions.containsKey(key)) {
           uniqueQuestions[key] = q;
         }

@@ -15,8 +15,8 @@ class DifficultySelectionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final availableQuestionsInCategory = ref.watch(gameProvider.select((s) => 
-      s.availableQuestions.where((q) => q.category == category).toList()
+    final availableQuestionsInCategory = ref.watch(gameProvider.select((s) =>
+      s.availableQuestions.where((q) => q.category.trim().toLowerCase() == category.trim().toLowerCase()).toList()
     ));
     final currentTeamName = ref.watch(gameProvider.select((s) => s.currentTeam.name));
     

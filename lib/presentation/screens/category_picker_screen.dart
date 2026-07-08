@@ -38,7 +38,16 @@ class _CategoryPickerScreenState extends ConsumerState<CategoryPickerScreen> {
       ),
       body: questionsAsync.when(
         data: (questions) {
-          final allCategories = questions.map((q) => q.category).toSet().toList();
+          // Aynı kategorinin farklı yazımları (büyük/küçük harf, boşluk)
+          // listede iki kez görünmesin — ilk görülen yazım gösterilir,
+          // eşleştirme oyun başlatılırken zaten normalize yapılıyor.
+          final seen = <String>{};
+          final allCategories = <String>[];
+          for (final q in questions) {
+            if (seen.add(q.category.trim().toLowerCase())) {
+              allCategories.add(q.category.trim());
+            }
+          }
           allCategories.sort();
 
           return Column(

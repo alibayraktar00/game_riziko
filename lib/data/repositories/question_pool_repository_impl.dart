@@ -95,10 +95,15 @@ class QuestionPoolRepositoryImpl implements QuestionPoolRepository {
   }
 
   /// Havuzdaki bir kaydın güncel kalite standardını karşılayıp
-  /// karşılamadığını kontrol eder: güncel prompt sürümüyle üretilmiş olmalı
-  /// ve her iki dil için de en az 3 çeldirici içermeli.
+  /// karşılamadığını kontrol eder: güncel prompt sürümüyle üretilmiş olmalı,
+  /// kategori adı bilinen kategorilerden biri olmalı ve her iki dil için de
+  /// en az 3 çeldirici içermeli.
   bool _isCurrentQuality(Map<String, dynamic> data) {
     if ((data['promptVersion'] as num?)?.toInt() != promptVersion) return false;
+
+    // Kategori adı birebir bilinen listeden olmalı — farklı yazımlı kayıtlar
+    // kategori seçicide hayalet kategoriler oluşturuyordu.
+    if (!AiQuestionService.categories.contains(data['category'])) return false;
 
     final distractors = data['distractors'];
     if (distractors is! Map) return false;

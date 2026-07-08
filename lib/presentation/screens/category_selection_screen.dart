@@ -47,18 +47,39 @@ class CategorySelectionScreen extends ConsumerWidget {
       ],
       body: questionsAsync.when(
           data: (originalQuestions) {
-            // Get selected categories from gameSession, or fallback to categories from remaining questions
+            // Get selected categories from gameSession, or fallback to categories from remaining questions.
+            // Fallback tarafında da aynı kategorinin farklı yazımları (özel sorularda
+            // kullanıcı serbest metin girebiliyor) tek kategori olarak sayılmalı.
             final activeCategories = gameSession.selectedCategories.isNotEmpty
                 ? gameSession.selectedCategories
-                : availableQuestions.map((q) => q.category).toSet().toList();
+                : () {
+                    final seen = <String>{};
+                    final result = <String>[];
+                    for (final q in availableQuestions) {
+                      if (seen.add(q.category.trim().toLowerCase())) {
+                        result.add(q.category.trim());
+                      }
+                    }
+                    return result;
+                  }();
 
-            // Find all possible categories in the original questions
-            final allOriginalCategories = originalQuestions.map((q) => q.category).toSet().toList();
+            // Find all possible categories in the original questions —
+            // aynı kategorinin farklı yazımları (büyük/küçük harf, boşluk)
+            // tek kategori sayılır.
+            final seenCategories = <String>{};
+            final allOriginalCategories = <String>[];
+            for (final q in originalQuestions) {
+              if (seenCategories.add(q.category.trim().toLowerCase())) {
+                allOriginalCategories.add(q.category.trim());
+              }
+            }
             allOriginalCategories.sort();
 
             // Upcoming categories are those in original questions but not selected for this game
+            final activeNormalized =
+                activeCategories.map((c) => c.trim().toLowerCase()).toSet();
             final upcomingCategories = allOriginalCategories
-                .where((c) => !activeCategories.contains(c))
+                .where((c) => !activeNormalized.contains(c.trim().toLowerCase()))
                 .toList();
 
             if (activeCategories.isEmpty) {
