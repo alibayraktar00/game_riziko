@@ -12,18 +12,16 @@ class AudioService {
 
   AudioService(this._settingsService);
 
-  // Placeholder URLs for immediate testing. 
-  // In a production app, these should be replaced with local AssetSource('sounds/ding.mp3')
-  static const String _dingUrl = 'https://www.soundjay.com/buttons/sounds/button-09.mp3';
-  static const String _buzzerUrl = 'https://www.soundjay.com/buttons/sounds/button-10.mp3';
-  static const String _tickUrl = 'https://www.soundjay.com/clock/sounds/clock-ticking-2.mp3';
-  static const String _bgmUrl = 'https://www.soundjay.com/free-music/sounds/deep-space-01.mp3';
+  static const String _dingAsset = 'sounds/ding.mp3';
+  static const String _buzzerAsset = 'sounds/buzzer.mp3';
+  static const String _tickAsset = 'sounds/tick.mp3';
+  static const String _bgmAsset = 'sounds/background_music.mp3';
 
   Future<void> playBackgroundMusic() async {
     if (!_settingsService.getMusicEnabled() || _isMusicPlaying) return;
     try {
       _musicPlayer.setReleaseMode(ReleaseMode.loop);
-      await _musicPlayer.play(UrlSource(_bgmUrl), volume: 0.3);
+      await _musicPlayer.play(AssetSource(_bgmAsset), volume: 0.3);
       _isMusicPlaying = true;
     } catch (e) {
       // print('AudioService Error: $e');
@@ -39,7 +37,7 @@ class AudioService {
     if (!_settingsService.getSfxEnabled()) return;
     try {
       if (_tickPlayer.state != PlayerState.playing) {
-        await _tickPlayer.play(UrlSource(_tickUrl), volume: 0.5);
+        await _tickPlayer.play(AssetSource(_tickAsset), volume: 0.5);
       }
     } catch (e) {
       // print('AudioService Error: $e');
@@ -53,7 +51,7 @@ class AudioService {
   Future<void> playDing() async {
     if (!_settingsService.getSfxEnabled()) return;
     try {
-      await _sfxPlayer.play(UrlSource(_dingUrl), volume: 1.0);
+      await _sfxPlayer.play(AssetSource(_dingAsset), volume: 1.0);
     } catch (e) {
       // print('AudioService Error: $e');
     }
@@ -62,7 +60,7 @@ class AudioService {
   Future<void> playBuzzer() async {
     if (!_settingsService.getSfxEnabled()) return;
     try {
-      await _sfxPlayer.play(UrlSource(_buzzerUrl), volume: 1.0);
+      await _sfxPlayer.play(AssetSource(_buzzerAsset), volume: 1.0);
     } catch (e) {
       // print('AudioService Error: $e');
     }
