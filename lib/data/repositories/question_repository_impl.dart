@@ -456,8 +456,8 @@ class QuestionRepositoryImpl implements QuestionRepository {
         'answers': ['baikal', 'lake baikal', 'baykal'],
         'keywords': ['baikal', 'baykal'],
         'distractors': {
-          'en': ['tanganyika', 'lake superior', 'caspian sea'],
-          'tr': ['tanganika', 'superior gölü', 'hazar denizi'],
+          'en': ['tanganyika', 'lake superior', 'lake victoria'],
+          'tr': ['tanganika', 'superior gölü', 'victoria gölü'],
         },
       },
       {

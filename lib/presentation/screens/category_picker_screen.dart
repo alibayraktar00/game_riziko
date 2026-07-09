@@ -8,7 +8,7 @@ import '../../core/theme/app_theme.dart';
 import '../providers/game_provider.dart';
 import '../providers/providers.dart';
 import '../widgets/riziko_scaffold.dart';
-import '../widgets/selectable_card.dart';
+import '../widgets/category_tile.dart';
 import '../../core/category_icons.dart';
 
 class CategoryPickerScreen extends ConsumerStatefulWidget {
@@ -81,11 +81,11 @@ class _CategoryPickerScreenState extends ConsumerState<CategoryPickerScreen> {
 
                     return Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                      child: SelectableCard(
+                      child: CategoryTile(
                         icon: categoryIcon(category),
+                        accentColor: categoryColor(category),
                         title: t.translate(category.toLowerCase()).toUpperCase(),
                         selected: isSelected,
-                        showHud: false,
                         onTap: () {
                           setState(() {
                             if (isSelected) {

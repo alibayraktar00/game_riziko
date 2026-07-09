@@ -24,3 +24,27 @@ IconData categoryIcon(String category) {
   }
   return Icons.category_rounded;
 }
+
+/// Maps a category name to a distinct accent color, so category pickers can
+/// give each card its own identity instead of one repeated theme color.
+Color categoryColor(String category) {
+  final lower = category.toLowerCase();
+  if (lower.contains('science') || lower.contains('bilim')) {
+    return const Color(0xFF00E5FF);
+  } else if (lower.contains('history') || lower.contains('tarih')) {
+    return const Color(0xFFFFB300);
+  } else if (lower.contains('geography') || lower.contains('coğrafya')) {
+    return const Color(0xFF00E676);
+  } else if (lower.contains('sports') || lower.contains('spor')) {
+    return const Color(0xFFFF6D00);
+  } else if (lower.contains('entertainment') || lower.contains('eğlence')) {
+    return const Color(0xFFFF4081);
+  } else if (lower.contains('art') || lower.contains('sanat')) {
+    return const Color(0xFFB388FF);
+  } else if (lower.contains('technology') || lower.contains('teknoloji')) {
+    return const Color(0xFF2979FF);
+  } else if (lower.contains('general culture') || lower.contains('genel kültür')) {
+    return const Color(0xFF1DE9B6);
+  }
+  return const Color(0xFF00E5FF);
+}
