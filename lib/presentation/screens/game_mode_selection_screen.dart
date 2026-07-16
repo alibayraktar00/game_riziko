@@ -200,7 +200,7 @@ class _ModeCardState extends State<_ModeCard> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(28),
             image: DecorationImage(
-              image: AssetImage(widget.bgAssetPath),
+              image: ResizeImage(AssetImage(widget.bgAssetPath), width: 960),
               fit: BoxFit.cover,
             ),
             boxShadow: [

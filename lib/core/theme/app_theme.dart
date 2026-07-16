@@ -157,7 +157,7 @@ class AppTheme {
 
   static BoxDecoration get neonGradient => BoxDecoration(
         image: DecorationImage(
-          image: const AssetImage('assets/images/background.png'),
+          image: const ResizeImage(AssetImage('assets/images/background.png'), width: 1080),
           fit: BoxFit.cover,
           colorFilter: ColorFilter.mode(
             const Color(0xFF070913).withValues(alpha: 0.8),

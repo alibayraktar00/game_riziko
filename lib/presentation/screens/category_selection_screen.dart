@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -341,59 +340,56 @@ class CategorySelectionScreen extends ConsumerWidget {
 
         return ClipRRect(
           borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.02),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.06), width: 1.2),
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    right: -10,
-                    bottom: -10,
-                    child: Opacity(
-                      opacity: 0.1,
-                      child: Icon(catIcon, size: 56, color: Colors.white),
-                    ),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.02),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06), width: 1.2),
+            ),
+            child: Stack(
+              children: [
+                Positioned(
+                  right: -10,
+                  bottom: -10,
+                  child: Opacity(
+                    opacity: 0.1,
+                    child: Icon(catIcon, size: 56, color: Colors.white),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-                        ),
-                        child: Text(
-                          'KİLİTLİ',
-                          style: GoogleFonts.outfit(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white.withValues(alpha: 0.4),
-                            letterSpacing: 0.5,
-                          ),
-                        ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
                       ),
-                      Text(
-                        t.translate(category.toLowerCase()).toUpperCase(),
+                      child: Text(
+                        'KİLİTLİ',
                         style: GoogleFonts.outfit(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white.withValues(alpha: 0.6),
-                          letterSpacing: 1.2,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white.withValues(alpha: 0.4),
+                          letterSpacing: 0.5,
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                    Text(
+                      t.translate(category.toLowerCase()).toUpperCase(),
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white.withValues(alpha: 0.6),
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         );
@@ -453,10 +449,8 @@ class _CategoryRow extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Stack(
-            children: [
+        child: Stack(
+          children: [
               // Left background watermark icon
               Positioned(
                 left: 10,
@@ -596,7 +590,6 @@ class _CategoryRow extends StatelessWidget {
             ],
           ),
         ),
-      ),
     ).animate().fadeIn(delay: (index * 80).ms).slideY(begin: 0.05, end: 0, duration: 400.ms);
   }
 

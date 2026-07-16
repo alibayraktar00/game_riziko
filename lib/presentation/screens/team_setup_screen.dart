@@ -172,7 +172,7 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage(bgAssetPath),
+                      image: ResizeImage(AssetImage(bgAssetPath), width: 600),
                       fit: BoxFit.cover,
                       opacity: isSelected ? 0.32 : 0.08,
                       colorFilter: ColorFilter.mode(
@@ -471,6 +471,7 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
                                   child: GlassCard(
                                     radius: AppRadius.button,
                                     padding: EdgeInsets.zero,
+                                    blur: false,
                                     child: ListTile(
                                           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                                           leading: Container(

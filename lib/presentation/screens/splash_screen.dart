@@ -147,6 +147,8 @@ class _SplashScreenState extends State<SplashScreen>
                                   width: 100,
                                   height: 100,
                                   fit: BoxFit.contain,
+                                  cacheWidth: 300,
+                                  cacheHeight: 300,
                                 ).animate(onPlay: (c) => c.repeat(reverse: true))
                                  .scale(begin: const Offset(1, 1), end: const Offset(1.05, 1.05), duration: 2.seconds, curve: Curves.easeInOut),
                                 const SizedBox(height: AppSpacing.lg),

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -848,20 +847,16 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
               scale: isSelected && !_answered ? 1.025 : 1.0,
               duration: 250.ms,
               curve: Curves.easeOutBack,
-              child: ClipRRect(
+              child: InkWell(
+                onTap: (_answered || isEliminated) ? null : () {
+                  setState(() {
+                    _selectedOption = option;
+                  });
+                  _answerController.text = option;
+                  _evaluateAnswer();
+                },
                 borderRadius: BorderRadius.circular(20),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: isEliminated ? 0 : 8, sigmaY: isEliminated ? 0 : 8),
-                  child: InkWell(
-                    onTap: (_answered || isEliminated) ? null : () {
-                      setState(() {
-                        _selectedOption = option;
-                      });
-                      _answerController.text = option;
-                      _evaluateAnswer();
-                    },
-                    borderRadius: BorderRadius.circular(20),
-                    child: AnimatedContainer(
+                child: AnimatedContainer(
                       duration: 250.ms,
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                       decoration: BoxDecoration(
@@ -913,8 +908,6 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                         ],
                       ),
                     ),
-                  ),
-                ),
               ),
             ),
           ),

@@ -1025,14 +1025,28 @@ class QuestionRepositoryImpl implements QuestionRepository {
     // tamamen başarısız olursa (anahtar yok, ağ hatası vb.) boş liste döner
     // ve statik soru bankası tek başına kullanılmaya devam eder — uygulama
     // hiçbir zaman kesintiye uğramaz.
+    //
+    // 40 slot (8 kategori × 5 zorluk) tek tek await edilirse yükleme oyun
+    // her başladığında saniyelerce sürer; sınırlı gruplar hâlinde paralel
+    // çalıştırmak yükleme süresini büyük ölçüde kısaltırken tüm slotların
+    // aynı anda Gemini'ye istek atıp ücretsiz kotayı zorlamasını önler.
+    final slots = [
+      for (final category in AiQuestionService.categories)
+        for (final difficulty in AiQuestionService.difficulties) (category: category, difficulty: difficulty),
+    ];
+
+    const batchSize = 8;
     final pooled = <Question>[];
-    for (final category in AiQuestionService.categories) {
-      for (final difficulty in AiQuestionService.difficulties) {
-        final slotQuestions = await _questionPoolRepository.getQuestionsForSlot(
-          category: category,
-          difficulty: difficulty,
+    for (var i = 0; i < slots.length; i += batchSize) {
+      final batch = slots.skip(i).take(batchSize);
+      final batchResults = await Future.wait(batch.map(
+        (slot) => _questionPoolRepository.getQuestionsForSlot(
+          category: slot.category,
+          difficulty: slot.difficulty,
           count: 1,
-        );
+        ),
+      ));
+      for (final slotQuestions in batchResults) {
         pooled.addAll(slotQuestions);
       }
     }
