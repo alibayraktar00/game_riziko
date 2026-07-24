@@ -66,40 +66,69 @@ class GameModeSelectionScreen extends StatelessWidget {
           Center(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'MOD SEÇİMİ',
-                    style: Theme.of(context).textTheme.displayMedium?.copyWith(letterSpacing: 2.5),
-                  ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2, end: 0),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: 20),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(32),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5), // Arkası net gözüksün diye blur çok çok aza indirildi
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent, // Siyahlık tamamen kaldırıldı, tam şeffaf yapıldı
+                      borderRadius: BorderRadius.circular(32),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.15), // Sadece dış çerçeve belirgin kalsın diye ince bir kenarlık
+                        width: 1.5,
+                      ),
+                    ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'MOD SEÇİMİ',
+                            style: GoogleFonts.orbitron(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: 3.0,
+                              shadows: [
+                                Shadow(
+                                  color: const Color(0xFF00E5FF).withValues(alpha: 0.8),
+                                  blurRadius: 12,
+                                ),
+                                Shadow(
+                                  color: const Color(0xFF00E5FF).withValues(alpha: 0.4),
+                                  blurRadius: 24,
+                                ),
+                              ],
+                            ),
+                          ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2, end: 0),
 
-                  const SizedBox(height: AppSpacing.xxl),
+                          const SizedBox(height: AppSpacing.xl), // Başlık ile butonlar arası yaklaştırıldı
 
-                  // Single Device Mode (Tek Oyuncu)
-                  _ModeCard(
-                    title: 'TEK OYUNCU',
-                    subtitle: 'Kendi başına oyna,\nbecerilerini geliştir.',
-                    glowColor: const Color(0xFF00E5FF), // Cyan glow
-                    bgAssetPath: 'assets/images/singleplayer_btn.png',
-                    onTap: () => context.go('/team-setup'),
-                  ).animate().fadeIn(delay: 200.ms, duration: 600.ms).slideY(begin: 0.1, end: 0),
+                          // Single Device Mode (Tek Oyuncu)
+                          _ImageModeButton(
+                            bgAssetPath: 'assets/images/singleplayer_btn.png',
+                            rippleColor: const Color(0xFF00E5FF), // Mavi parlama efekti
+                            onTap: () => context.go('/team-setup'),
+                          ).animate().fadeIn(delay: 200.ms, duration: 600.ms).slideY(begin: 0.1, end: 0),
 
-                  const SizedBox(height: AppSpacing.lg + 4),
+                          const SizedBox(height: 6), // Butonları birbirine iyice yaklaştırmak için boşluk çok azaltıldı
 
-                  // Multi-Device Mode (Çok Oyuncu)
-                  _ModeCard(
-                    title: 'ÇOK OYUNCU',
-                    subtitle: 'Arkadaşlarınla veya dünyadaki\ndiğer oyuncularla yarış!',
-                    glowColor: const Color(0xFFFFB300), // Orange/Gold glow
-                    bgAssetPath: 'assets/images/multiplayer_btn.png',
-                    onTap: () => _showMultiplayerOptions(context),
-                  ).animate().fadeIn(delay: 400.ms, duration: 600.ms).slideY(begin: 0.1, end: 0),
-                ],
+                          // Multi-Device Mode (Çok Oyuncu)
+                          _ImageModeButton(
+                            bgAssetPath: 'assets/images/multiplayer_btn.png',
+                            rippleColor: const Color(0xFFFFB300), // Metalik sarı parlama efekti
+                            onTap: () => _showMultiplayerOptions(context),
+                          ).animate().fadeIn(delay: 400.ms, duration: 600.ms).slideY(begin: 0.1, end: 0),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -162,26 +191,22 @@ class GameModeSelectionScreen extends StatelessWidget {
   }
 }
 
-class _ModeCard extends StatefulWidget {
-  final String title;
-  final String subtitle;
-  final Color glowColor;
+class _ImageModeButton extends StatefulWidget {
   final String bgAssetPath;
+  final Color rippleColor;
   final VoidCallback onTap;
 
-  const _ModeCard({
-    required this.title,
-    required this.subtitle,
-    required this.glowColor,
+  const _ImageModeButton({
     required this.bgAssetPath,
+    required this.rippleColor,
     required this.onTap,
   });
 
   @override
-  State<_ModeCard> createState() => _ModeCardState();
+  State<_ImageModeButton> createState() => _ImageModeButtonState();
 }
 
-class _ModeCardState extends State<_ModeCard> {
+class _ImageModeButtonState extends State<_ImageModeButton> {
   bool _isPressed = false;
 
   @override
@@ -192,76 +217,53 @@ class _ModeCardState extends State<_ModeCard> {
       onTapCancel: () => setState(() => _isPressed = false),
       onTap: widget.onTap,
       child: AnimatedScale(
-        scale: _isPressed ? 0.96 : 1.0,
+        scale: _isPressed ? 0.94 : 1.0, // Basıldığında biraz daha belirgin küçülme
         duration: const Duration(milliseconds: 150),
         child: Container(
-          width: 320,
-          height: 250,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(28),
-            image: DecorationImage(
-              image: ResizeImage(AssetImage(widget.bgAssetPath), width: 960),
-              fit: BoxFit.cover,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: widget.glowColor.withValues(alpha: _isPressed ? 0.4 : 0.22),
-                blurRadius: _isPressed ? 32 : 20,
-                spreadRadius: _isPressed ? 2 : -1,
+          width: 420, // Butonlar biraz daha büyütüldü
+          height: 200, // Yükseklik de orantılı olarak artırıldı
+          color: Colors.transparent,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // 1. Dışarıya taşan ışık saçması efekti (Outer Glow)
+              AnimatedOpacity(
+                opacity: _isPressed ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 150),
+                child: ImageFiltered(
+                  imageFilter: ImageFilter.blur(sigmaX: 16, sigmaY: 16), // Işığın yayılma miktarı
+                  child: ColorFiltered(
+                    colorFilter: ColorFilter.mode(
+                      widget.rippleColor,
+                      BlendMode.srcIn, // Görselin şeklini alıp istenilen rengi basar
+                    ),
+                    child: Image.asset(
+                      widget.bgAssetPath,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
               ),
+              
+              // 2. Orijinal Görsel
+              Image.asset(
+                widget.bgAssetPath,
+                fit: BoxFit.contain,
+              ),
+
+              // 3. Üstteki hafif renk atması (İç parlama efekti)
+              if (_isPressed)
+                ColorFiltered(
+                  colorFilter: ColorFilter.mode(
+                    widget.rippleColor.withValues(alpha: 0.25),
+                    BlendMode.srcATop,
+                  ),
+                  child: Image.asset(
+                    widget.bgAssetPath,
+                    fit: BoxFit.contain,
+                  ),
+                ),
             ],
-            border: Border.all(
-              color: widget.glowColor.withValues(alpha: _isPressed ? 0.75 : 0.35),
-              width: _isPressed ? 2.5 : 1.5,
-            ),
-          ),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28),
-              gradient: LinearGradient(
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withValues(alpha: 0.8),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Title
-                Text(
-                  widget.title,
-                  style: GoogleFonts.outfit(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    letterSpacing: 1.5,
-                    shadows: [
-                      Shadow(
-                        color: widget.glowColor.withValues(alpha: 0.5),
-                        blurRadius: 8,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 6),
-                // Subtitle
-                Text(
-                  widget.subtitle,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    color: Colors.white.withValues(alpha: 0.85),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    height: 1.3,
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),
